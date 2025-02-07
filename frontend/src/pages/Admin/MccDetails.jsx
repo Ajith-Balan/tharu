@@ -76,49 +76,104 @@ const MccDetails = () => {
         }
     };
 
+
+
+      const data = {
+    contractPeriod: "Jan 2024 -  Dec 2027",
+    managerName: "John Doe",
+    totalLabours: 150,
+    pitYardCount: 75,
+    mccLabourCount: 40,
+    lastBillPassedDate: "2024-01-15",
+    estimatedBillPassingDate: "2024-02-15",
+    totalExpenses: "$500,000",
+    billAmount: "$200,000",
+    salary: "$300,000",
+    billDelayReason: "Pending approval from finance department",
+    supervisors: ["Alice Brown", "Bob Smith", "Charlie Johnson"]
+  };
+
+
+
+  const targetDate = new Date('2027-12-28T00:00:00');
+  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+
+  function calculateTimeLeft() {
+    const now = new Date();
+    const diff = targetDate - now;
+
+    if (diff <= 0) {
+      return { years: 0, months: 0, days: 0 };
+    }
+
+    const years = targetDate.getFullYear() - now.getFullYear();
+    let months = targetDate.getMonth() - now.getMonth();
+    let days = targetDate.getDate() - now.getDate();
+
+    if (days < 0) {
+      months -= 1;
+      const prevMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      days += prevMonth.getDate();
+    }
+    if (months < 0) {
+      months += 12;
+    }
+
+    return { years, months, days };
+  }
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
     return (
         <Layout>
-            <div className="mt-20 px-6 md:px-16 lg:px-32">
-                <h1 className="text-3xl font-bold text-gray-800 mb-6">MCC Details</h1>
+            <div className="mt-10 px-6 md:px-16 lg:px-32 mb-10">
 
+    <div className='flex justify-center my-10 items-center gap-2'>
+       <p > 
+                 
 
-                <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-2xl">
-      <h2 className="text-2xl font-bold text-center mb-4">Contract Details</h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {[ 
-          { icon: <FaCalendarAlt className="text-blue-500 text-2xl" />, label: "Period of Contract", value: "0/12/2025 - 1/26/2029" },
-          { icon: <FaUserTie className="text-green-500 text-2xl" />, label: "Manager Name", value: `${managers.name}` },
-          { icon: <FaUsers className="text-purple-500 text-2xl" />, label: "Total Number of Labours", value: "[Count]" },
-          { icon: <FaClipboardList className="text-yellow-500 text-2xl" />, label: "Labour Division MCC Count", value: "[Count]" },
-          { icon: <FaClipboardList className="text-yellow-500 text-2xl" />, label: "Pit & Yard Count", value: "[Count]" },
-          { icon: <FaCalendarAlt className="text-red-500 text-2xl" />, label: "Last Passed Bill", value: "[Month]" },
-          { icon: <FaExclamationCircle className="text-orange-500 text-2xl" />, label: "Reason for Bill Delay", value: "[Reason]" },
-          { icon: <FaCalendarAlt className="text-blue-500 text-2xl" />, label: "Estimated Bill Passing Date", value: "[Date]" },
-          { icon: <FaUserTie className="text-green-500 text-2xl" />, label: "List of Supervisors", value: "[Names]" },
-          { icon: <FaMoneyBillWave className="text-indigo-500 text-2xl" />, label: "Total Expenses", value: "[Amount]" },
-          { icon: <FaMoneyBillWave className="text-indigo-500 text-2xl" />, label: "Bill Amount & Salary", value: "[Amount]" }
-        ].map((item, index) => (
-          <div key={index} className="bg-gray-100 p-4 rounded-xl shadow-md flex items-center space-x-3">
-            {item.icon}
-            <p className="font-semibold">{item.label}: <span className="text-gray-600">{item.value}</span></p>
-          </div>
-        ))}
+         <span className='  flex gap-20 px-40 py-5 p-1 shadow '>
+           
+              <span className="font-semibold flex">  <FaCalendarAlt className="text-blue-500 mr-2  text-2xl" />  Period of Contract :  </span>
+
+            {data.contractPeriod}
+            <div className="bg-yellow-200 px-6 rounded text-xl">
+        <span className="mr-4">{timeLeft.years} Years</span>
+        <span className="mr-4">{timeLeft.months} Months Left</span>
+        {/* <span>{timeLeft.days} Days </span> */}
+        
       </div>
-    </div>
+         </span>
+       
+         </p>
 
-                <div className='flex gap-x-4 m-2 text-center'>
-                    <div className=' p-2 bg-gray-200'>total  Livetrain count <br />{livetrain.length}</div>
-                    <div className='p-2 bg-gray-200'>total Completedtrain count <br />{completedGrouped.length}</div>
-                </div>
+       
+                </div> 
 
-                <div className="bg-gray-100 p-6 rounded-lg shadow-lg mb-8">
-                    <h5 className="text-xl font-semibold text-gray-700">Manager:</h5>
-                    <p className="text-lg text-gray-600">{managers.name || 'Loading...'}</p>
-                </div>
 
+                <div className="bg-white p-4 flex justify-between">
+                <h1 className="text-3xl font-bold text-gray-800 mb-6">MCC Details</h1>
+               <div className='flex items-center gap-2'>
+                <FaUserTie className="text-green-500 text-2xl" />
+                 <p  > <span className="font-semibold">   Manager Name   </span> <br />
+         
+            {managers.name}
+         </p>
+                </div>       
+         
+        </div>
+
+
+
+        
                 {/* Tab navigation */}
-                <div className="flex border-b space-x-1 mb-6">
+                <div className="flex border-b space-x-1 mb-10">
                     <button
                         onClick={() => setActiveTab('live')}
                         className={`px-4 py-2  font-semibold  ${activeTab === 'live' ? ' bg-green-500 text-white  hover:bg-green-500 hover:text-white' : 'text-green-500'}`}
@@ -140,7 +195,7 @@ const MccDetails = () => {
                             <h2 className="text-2xl font-bold text-gray-800">Live Trains</h2>
                             <button onClick={getTrain} className="px-3 py-1 text-sm bg-gray-300 rounded-lg shadow hover:bg-gray-400">Refresh</button>
                         </div>
-                        <div className="overflow-x-auto">
+                        <div className="overflow-x-auto mb-10">
                                 <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
                                     <thead>
                                         <tr className="bg-gray-100">
@@ -190,7 +245,7 @@ const MccDetails = () => {
                         {loading ? (
                             <p className="text-center py-4 text-gray-500">Loading completed trains...</p>
                         ) : (
-                            <div className="overflow-x-auto">
+                            <div className="overflow-x-auto mb-10">
                                 <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
                                     <thead>
                                         <tr className="bg-gray-100">
@@ -223,6 +278,60 @@ const MccDetails = () => {
                         )}
                     </>
                 )}
+
+ <div className="p-6 min-h-screen">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      
+  
+        <div className="bg-white p-4 shadow rounded-lg">
+          <p className="font-semibold">Total Number of Labours</p>
+          <p>{data.totalLabours}</p>
+        </div>
+        <div className="bg-white p-4 shadow rounded-lg">
+          <p className="font-semibold">Pit & Yard Count</p>
+          <p>{data.pitYardCount}</p>
+        </div>
+        <div className="bg-white p-4 shadow rounded-lg">
+          <p className="font-semibold">MCC Labour Count</p>
+          <p>{data.mccLabourCount}</p>
+        </div>
+        <div className="bg-white p-4 shadow rounded-lg">
+          <p className="font-semibold">Last Bill Passed Date</p>
+          <p>{data.lastBillPassedDate}</p>
+        </div>
+        <div className="bg-white p-4 shadow rounded-lg">
+          <p className="font-semibold">Estimated Bill Passing Date</p>
+          <p>{data.estimatedBillPassingDate}</p>
+        </div>
+        <div className="bg-white p-4 shadow rounded-lg">
+          <p className="font-semibold">Total Expenses</p>
+          <p>{data.totalExpenses}</p>
+        </div>
+        <div className="bg-white p-4 shadow rounded-lg">
+          <p className="font-semibold">Bill Amount & Salary</p>
+          <p>{data.billAmount} & {data.salary}</p>
+        </div>
+        <div className="bg-white p-4 shadow rounded-lg">
+          <p className="font-semibold">Reason for Bill Delay</p>
+          <p>{data.billDelayReason}</p>
+        </div>
+        <div className="bg-white p-4 shadow rounded-lg col-span-1 md:col-span-2 lg:col-span-3">
+          <p className="font-semibold mb-2">List of Supervisors</p>
+          <ul className="list-disc pl-4">
+            {data.supervisors.map((supervisor, index) => (
+              <li key={index}>{supervisor}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+            
+
             </div>
         </Layout>
     );
