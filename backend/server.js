@@ -23,6 +23,7 @@ app.use('/api/v1/types',worktypeRoutes);
 // app.get('/',(req,res)=>{
 //     res.send({message:'welcome to ecom app'})
 // })
+
 app.use('/api/v1/site', siteRoutes)
 app.use('/api/v1/mcctrain', mcctrainRoutes)
 

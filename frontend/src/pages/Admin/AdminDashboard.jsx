@@ -13,24 +13,7 @@ const AdminDashboard = () => {
 
 
 
-  const renderTableRows = () =>
-    states.map((state , index) => (
-      <tr
-        key={state._id}
-        className="hover:bg-gray-100 border-t border-gray-300"
-      >
-        <td className="px-4 py-2 text-gray-700">{index+1}</td>
-        <td className="px-4 py-2 text-gray-700">{state.name}</td>
-        <td className="px-4 py-2">
-          <Link
-            to={`/dashboard/admin/states/${state._id}`}
-            className="text-blue-500 hover:underline"
-          >
-            View Details
-          </Link>
-        </td>
-      </tr>
-    ));
+  
 
  
 
@@ -50,25 +33,34 @@ const AdminDashboard = () => {
       
   {/* <AdminMenu/> */}
 
-              <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">States</h2>
-          <table className="min-w-full">
-            <thead className="bg-gray-200">
-              <tr>
-                <th className="px-4 py-2 text-left text-gray-700 font-semibold">
-                  State ID
-                </th>
-                <th className="px-4 py-2 text-left text-gray-700 font-semibold">
-                  State Name
-                </th>
-                <th className="px-4 py-2 text-left text-gray-700 font-semibold">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>{renderTableRows()}</tbody>
-          </table>
+              <div className="bg-white rounded-lg  p-6">
+          <h2 className="text-xl font-bold text-center text-gray-700 mb-4">States</h2> <br /> <br />
+      <div className="grid grid-cols-2 gap-10 md:grid-cols-3 lg:grid-cols-4 ">
+
+{
+          states.map((state , index) => (
+      <div
+        key={state._id}
+        className="hover:bg-gray-100 border-2 border-teal-100 p-2 text-center rounded shadow grid col-4 border-gray-300"
+      >
+        
+          <Link
+            to={`/dashboard/admin/states/${state._id}`}
+            className="  hover:text-blue-500"
+          >
+            <h5 className="font-semibold">
+            {state.name.toUpperCase()}
+            </h5>
+           
+          </Link>
+      </div>
+    ))
+    
+  }
         </div>
+
+
+  </div>
         <hr />
  
 

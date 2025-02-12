@@ -15,6 +15,7 @@ import './App.css';
 import PrivateRoute from './components/Routes/PrivateRoute';
 import AdminRoute from './components/Routes/AdminRoute';
 import AdminDashboard from './pages/Admin/AdminDashboard';
+import AccaDetails from './pages/Admin/AccaDetails'
 
 
 import Forget from './pages/Auth/Forget';
@@ -30,6 +31,8 @@ import ManagerRoute from './components/Routes/ManagerRoute';
 import Managerhome from './pages/manager/Managerhome';
 import Addmcctrain from './pages/user/Addmcctrain';
 import Site from './components/Site';
+import LiveTrain from './pages/Admin/LiveTrain';
+import DaybaseDetails from './pages/Admin/DaybaseDetails';
 function App() {
   return (
     <>
@@ -50,6 +53,9 @@ function App() {
           <Route path='admin/create-states' element={<CreateStates/>} />
           <Route path='admin/states/:id' element={<StateSite />} />
           <Route path='admin/MCC/:id' element={<MccDetails />} />
+          <Route path='admin/ACCA/:id' element={<AccaDetails />} />
+          <Route path='admin/Live-train/:id' element={<LiveTrain />} />
+
 
           <Route path='admin/create-site' element={<CreateSite/>} />
           <Route path='admin/create-type' element={<CreateType/>} />
@@ -78,6 +84,9 @@ function App() {
           </Route>
 
           <Route path='/types/:id' element={<Types />} />
+          <Route path='/Live-train/:id' element={<LiveTrain />} />
+          <Route path='/Daybase-Detail/:id' element={<DaybaseDetails />} />
+
 
           <Route path='/about' element={<About />} />
           <Route path='/contact' element={<Contact />} />
