@@ -34,11 +34,11 @@ const AdminMenu = () => {
       🧑 Add Supervisor
         </Link>
          <Link to="/dashboard/manager/livework" className="block text-gray-700 hover:text-red-500">
-          📡 Live Trains
+          📡 Live Works
         </Link> 
 
         <Link to="/dashboard/manager/completed" className="block text-gray-700 hover:text-red-500">
-          📡 Completed Trains
+          📡 Completed Works
         </Link> 
        
         <Link to="/dashboard/manager/staffdetails" className="block text-gray-700 hover:text-red-500">

@@ -101,7 +101,7 @@ export async function getOneworker(req,res){
     try {
     
 
-      const {  name, phone,aadhar,empid,wage,accnumber,ifscode,uanno,esino,designation  } = req.body;
+      const {  name, phone,aadhar,empid,wage,accnumber,ifscode,uanno,esino,designation,status  } = req.body;
   
       // Find the user by ID
       const {id}=req.params;
@@ -126,7 +126,8 @@ export async function getOneworker(req,res){
         ifscode:ifscode || user.ifscode,
         uanno:uanno || user.uanno,
         esino:esino || user.esino,
-        designation:designation || user.designation
+        designation:designation || user.designation,
+          status:status || user.status
 
       };
   

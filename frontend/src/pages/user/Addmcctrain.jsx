@@ -88,20 +88,17 @@ const Addmcctrain = () => {
 
     // Validation
     if (["mcc", "bio", "acca"].includes(selected)) {
-      if (!trainno || !workers.length || !supervisor) {
+      if ( !workers || !supervisor) {
         toast.error("Please fill all required fields.");
         return;
       }
-      if (selected === "mcc" && !type) {
-        toast.error("Please select train type.");
-        return;
-      }
+ 
       if (selected === "acca" && !suppliedBedsheet) {
         toast.error("Please enter supplied bedsheet count.");
         return;
       }
     } else {
-      if (!workers.length) {
+      if (!workers) {
         toast.error("Please select at least one worker.");
         return;
       }
@@ -113,7 +110,7 @@ const Addmcctrain = () => {
         `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/create-mcctrain`,
         {
           ...trainDetails,
-          reqq,
+          reqq ,
           used,
           work: selected,
         }
@@ -192,16 +189,26 @@ const Addmcctrain = () => {
               {/* MCC */}
               {selected === "mcc" && (
                 <>
+                  <label className="block text-gray-700 mb-2">Train Number</label>
+
                   <input
                     label="Train Number"
                     name="trainno"
+                    type="number"
+                 className="w-1/2 px-2 bg-gray-100 border border-gray-300"
+
                     value={trainDetails.trainno}
                     onChange={handleTrainChange}
                   />
+
+                  <label className="block text-gray-700 mb-2">Total Coaches</label>
+
                   <input
                     label="Total Coaches"
                     name="totalcoach"
                     type="number"
+                    className="w-1/2 px-2 bg-gray-100 border border-gray-300"
+
                     value={trainDetails.totalcoach}
                     onChange={handleTrainChange}
                   />
@@ -247,16 +254,24 @@ const Addmcctrain = () => {
               {/* BIO */}
               {selected === "bio" && (
                 <>
-                  <InputField
+              <label className="block text-gray-700 mb-2">Train Number</label>
+
+                  <input
                     label="Train Number"
                     name="trainno"
+                    className="w-1/2 px-2 bg-gray-100 border border-gray-300"
+
                     value={trainDetails.trainno}
                     onChange={handleTrainChange}
                   />
-                  <InputField
+                  <label className="block text-gray-700 mb-2">Total Tank</label>
+                 
+                  <input
                     label="Total Coaches"
                     name="totalcoach"
                     type="number"
+                 className="w-1/2 px-2 bg-gray-100 border border-gray-300"
+
                     value={trainDetails.totalcoach}
                     onChange={handleTrainChange}
                   />

@@ -12,7 +12,7 @@ dotenv.config()
 
 export const registerController = async (req,res)=>{
 try {
-    const { name,email, phone,aadhar,empid,wage,acnumber,ifsccode,bank,branch,uanno,esino,designation,password } = req.body; 
+    const { name,email, phone,aadhar,empid,wage,acnumber,ifsccode,bank,branch,uanno,esino,designation,password,sitename,work } = req.body; 
     if (!name) {
         return res.send({ error: "Name is Required" });
       }
@@ -46,6 +46,8 @@ try {
     const user = await new userModel({
       email,
        name,
+       sitename,
+       work,
         phone,
         aadhar,
         empid,
@@ -173,7 +175,7 @@ export const loginController = async (req, res) => {
 
 
 
-      const { name, email, phone, password, address } = req.body;
+      const { name, email, phone, password } = req.body;
   
       // Find the user by ID
     
@@ -191,7 +193,7 @@ export const loginController = async (req, res) => {
         name: name || user.name,
         email: email || user.email,
         phone: phone || user.phone,
-        address: address || user.address,
+  
       };
   
       // If password is provided, hash it (assuming you have a function for hashing passwords)

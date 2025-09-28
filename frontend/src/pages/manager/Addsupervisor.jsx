@@ -27,7 +27,7 @@ const Addsupervisor = () => {
     uanno: '',
     esino: '',
     status: '',
- 
+
     role: 0
   });
 
@@ -119,8 +119,29 @@ const Addsupervisor = () => {
           <div className="max-w-5xl mx-auto">
             <h2 className="text-2xl font-bold text-center mb-8">Add Supervisor</h2>
             <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={handleSubmit}>
+                 <div>
+                    <label className="block text-gray-700 mb-2">Work</label>
+                    <select
+                      name="work"
+                      value={formData.work}
+                      onChange={handleChange}
+                      className="w-full p-2 border border-gray-300 rounded-lg"
+                    >
+                      <option value="" disabled>
+                        Select work
+                      </option>
+                      <option value="mcc">MCC</option>
+                      <option value="acca">ACCA</option>
+                      <option value="bio">BIO</option>
+                      <option value="pftr">PFTR</option>
+                      <option value="pit & yard">PIT & YARD</option>
+                      <option value="laundry">lAUNDRY</option>
+                      
+                    </select>
+                  </div>
+
               <div>
-               <label htmlFor="name" className=" text-sm font-medium text-gray-700 "> Staff Name </label>
+               <label htmlFor="name" className=" text-sm font-medium text-gray-700 "> Supervisor Name </label>
               <input type="text" name="name" placeholder="Supervisor Name" required value={formData.name} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" />
                  </div>
 
@@ -144,7 +165,7 @@ const Addsupervisor = () => {
 </div>
               
 <div>
-                                <label htmlFor="name" className=" text-sm font-medium text-gray-700 ">Supervisor Emp ID</label>
+                                <label htmlFor="name" className=" text-sm font-medium text-gray-700 ">Confirm Password</label>
 
 <input type="password" name="confirmPassword" placeholder="Confirm Password" required value={formData.confirmPassword} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" />
 </div>
@@ -190,7 +211,7 @@ const Addsupervisor = () => {
    </div>
               <div className="md:col-span-1">
                 <label htmlFor="ifsccode" className="block text-sm font-medium text-gray-700 mb-1">IFSC Code</label>
-                <input type="text" name="ifsccode" placeholder="Enter IFSC Code" required value={formData.ifsccode} onChange={ifsccodechange} className={`w-full p-2 border ${ifscError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:ring-2 focus:ring-blue-500`} />
+                <input type="text" name="ifsccode" placeholder="Enter IFSC Code"  value={formData.ifsccode} onChange={ifsccodechange} className={`w-full p-2 border ${ifscError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:ring-2 focus:ring-blue-500`} />
                 {loadingIfsc && <p className="text-sm text-blue-600 mt-1">Checking IFSC...</p>}
                 {ifscError && <p className="text-sm text-red-600 mt-1">{ifscError}</p>}
               </div>
@@ -199,19 +220,19 @@ const Addsupervisor = () => {
               <div>
                <label htmlFor="name" className=" text-sm font-medium text-gray-700 "> Account Number </label>
 
-  <input type="text" name="acnumber" placeholder="Account Number" required value={formData.acnumber} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" />
+  <input type="text" name="acnumber" placeholder="Account Number"  value={formData.acnumber} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
 
                <label htmlFor="name" className=" text-sm font-medium text-gray-700 "> UAN Number </label>
 
-              <input type="text" name="uanno" placeholder="UAN Number" required value={formData.uanno} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" />
+              <input type="text" name="uanno" placeholder="UAN Number"  value={formData.uanno} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" />
                             </div>
 
               <div>
                <label htmlFor="name" className=" text-sm font-medium text-gray-700 "> ESI Number </label>
 
-  <input type="text" name="esino" placeholder="ESI Number" required value={formData.esino} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" />
+  <input type="text" name="esino" placeholder="ESI Number"  value={formData.esino} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" />
               </div>
             
               

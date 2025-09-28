@@ -8,7 +8,6 @@ type:String
 
     trainno: {
       type: String,
-      required: true,
     },
     supervisor:{
 type:String
@@ -16,7 +15,6 @@ type:String
  
     totalcoach: {
       type: Number,
-      required: true,
     },
   type:{
     type:String

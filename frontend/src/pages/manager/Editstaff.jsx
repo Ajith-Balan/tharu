@@ -182,6 +182,23 @@ const Editstaff = () => {
     <input type="text" name="esino" value={formData.esino} onChange={handleChange} className="border p-2 w-full rounded" placeholder="ESI No" />
   </div>
 
+
+
+   <label className="block text-gray-700 mb-2">Status</label>
+                    <select
+                      name="status"
+                      value={formData.status}
+                      onChange={handleChange}
+                      className="w-full p-2 border border-gray-300 rounded-lg"
+                    >
+                      <option value="" disabled>
+                        Select Staff status
+                      </option>
+                      <option value="Active">Active</option>
+                      <option value="On Leave">On Leave</option>
+                      <option value="Resigned">Resigned</option>
+                    </select>
+
   <div className="md:col-span-2 text-center">
     <button
       type="submit"

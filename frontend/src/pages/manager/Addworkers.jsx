@@ -267,7 +267,6 @@ const Addworkers = () => {
                   type="text"
                   name="ifsccode"
                   placeholder="Enter IFSC Code"
-                  required
                   value={formData.ifsccode}
                   onChange={ifsccodechange}
                   className={`w-full p-2 border ${
@@ -292,7 +291,7 @@ const Addworkers = () => {
                 type="text"
                 name="acnumber"
                 placeholder="Account Number"
-                required
+                
                 value={formData.acnumber}
                 onChange={handleChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
@@ -309,7 +308,6 @@ const Addworkers = () => {
                 type="text"
                 name="uanno"
                 placeholder="UAN Number"
-                required
                 value={formData.uanno}
                 onChange={handleChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
@@ -327,7 +325,7 @@ const Addworkers = () => {
                 type="text"
                 name="esino"
                 placeholder="ESI Number"
-                required
+                
                 value={formData.esino}
                 onChange={handleChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"

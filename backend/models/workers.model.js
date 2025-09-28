@@ -30,29 +30,23 @@ const workerSchema=new mongoose.Schema
 
          acnumber: {
         type: Number,
-        required: true,
       },
 
         ifsccode: {
         type: String,
-        required: true,
       },
              bank: {
         type: String,
-        required: true,
       },
          branch: {
         type: String,
-        required: true,
       },
         uanno: {
         type: Number,
-        required: true,
       },
          
           esino: {
         type: Number,
-        required: true,
       },
          designation: {
         type: String,
