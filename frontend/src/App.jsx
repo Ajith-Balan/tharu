@@ -34,6 +34,7 @@ import Completedtrain from './pages/manager/CompletedTrain';
 import Editstaff from './pages/manager/Editstaff';
 import Billdetails from './pages/manager/Billdetails';
 import Addbill from './pages/manager/Addbill';
+import Connect from './pages/manager/Connect';
 function App() {
   return (
     <>
@@ -74,6 +75,7 @@ function App() {
           <Route path='/dashboard' element={<ManagerRoute />} >
           <Route path='manager' element={<Managerhome />} />
           <Route path='manager/bills' element={<Billdetails />} />
+          <Route path='manager/connect' element={<Connect />} />
          <Route path='manager/addbills' element={<Addbill />} />
 
 
@@ -98,6 +100,7 @@ function App() {
 
           </Route>
 
+          {/* <Route path='/addsupervisors' element={<Addsupervisor />} /> */}
 
 
           <Route path='/about' element={<About />} />

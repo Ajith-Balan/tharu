@@ -135,7 +135,7 @@ const liveTrain = () => {
   };
 
   return (
-    <Layout title="Dashboard - User">
+    <Layout title="Live work - Manager">
       <div className="flex bg-gray-100 min-h-screen">
         <AdminMenu />
         <div className="p-6 flex-1 w-full">

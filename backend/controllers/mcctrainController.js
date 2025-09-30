@@ -9,6 +9,7 @@ export async function createtrainController(req, res) {
     //   return res.status(400).send({ error: "All fields are required" });
     // }
      
+  
       
     // Create the train
     const mcctrain = await mcctrainModel.create({
@@ -106,13 +107,13 @@ export async function updatetrain(req,res){
 
 export async function createcontractController(req, res) {
   try {
-    const { month,totalcoach,consumed,billvalue,penalty,netamount } = req.body;
+    const { month,status,billvalue,penalty,netamount } = req.body;
 
     // Validation (add additional checks if necessary)
 
     // Create the train
     const contract = await contractModel.create({
-      month,totalcoach,consumed,billvalue,penalty,netamount
+      month,status,billvalue,penalty,netamount
     });
 
     // Send success response with the created site

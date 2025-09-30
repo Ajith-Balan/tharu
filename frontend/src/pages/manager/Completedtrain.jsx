@@ -38,7 +38,7 @@ const Completedtrain = () => {
   };
 
   return (
-    <Layout title="Completed Trains">
+    <Layout title="Manager Completed Trains">
       <div className="flex min-h-screen bg-gray-100">
         <AdminMenu />
         <main className="flex-1 p-6">

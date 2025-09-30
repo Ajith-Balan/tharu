@@ -113,7 +113,7 @@ const Attendance = () => {
   };
 
   return (
-    <Layout title="Attendance - Admin">
+    <Layout title="Attendance - Manager">
       <div className="p-4">
         <h1 className="text-xl font-bold mb-4">
           Attendance - {now.toLocaleString('default', { month: 'long' })} {year}

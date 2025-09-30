@@ -5,20 +5,36 @@ import { useAuth } from "../../context/Auth";
 import UserMenu from "../../components/layout/UserMenu";
 import { Link } from "react-router-dom";
 import { FaEdit } from "react-icons/fa";
+
 const CompletedTrain = () => {
   const [auth] = useAuth();
   const [completedDates, setCompletedDates] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [selected, setSelected] = useState("mcc"); // Default tab
+  const [selectedCategory, setSelectedCategory] = useState(""); // current selected tab
 
   const options = ["mcc", "acca", "bio", "laundry", "pftr", "pit & yard"];
+  const userWork = auth?.user?.work?.toLowerCase() || "";
+
+  // Tabs to display: user's work only or all
+  const displayedTabs = userWork
+    ? options.filter((opt) => opt === userWork)
+    : options;
+
+  // Initialize selected category
+  useEffect(() => {
+    if (userWork && options.includes(userWork)) {
+      setSelectedCategory(userWork);
+    } else if (!userWork) {
+      setSelectedCategory(options[0]); // default to first option
+    }
+  }, [userWork]);
 
   // Fetch on mount and when selected category changes
   useEffect(() => {
-    if (auth?.user && selected) {
+    if (auth?.user && selectedCategory) {
       fetchCompletedTrains();
     }
-  }, [auth?.user, selected]);
+  }, [auth?.user, selectedCategory]);
 
   const fetchCompletedTrains = async () => {
     try {
@@ -26,9 +42,10 @@ const CompletedTrain = () => {
       const res = await axios.get(
         `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/get-completedmcctrain`
       );
-      const completed = res.data?.filter(
-        (train) => train.work?.toLowerCase() === selected.toLowerCase()
-      ) || [];
+      const completed =
+        res.data?.filter(
+          (train) => train.work?.toLowerCase() === selectedCategory.toLowerCase()
+        ) || [];
       setCompletedDates(completed);
     } catch (err) {
       console.error("Error fetching completed trains:", err);
@@ -50,12 +67,12 @@ const CompletedTrain = () => {
 
           {/* 🔹 Tabs */}
           <div className="flex flex-wrap gap-2 mb-6">
-            {options.map((opt) => (
+            {displayedTabs.map((opt) => (
               <button
                 key={opt}
-                onClick={() => setSelected(opt)}
+                onClick={() => setSelectedCategory(opt)}
                 className={`px-4 py-2 rounded transition text-sm font-medium ${
-                  selected === opt
+                  selectedCategory === opt
                     ? "bg-blue-600 text-white border border-blue-600"
                     : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
                 }`}
@@ -75,13 +92,12 @@ const CompletedTrain = () => {
                     <th className="px-4 py-2 text-left font-semibold">Status</th>
                     <th className="px-4 py-2 text-left font-semibold">Date</th>
                     <th className="px-4 py-2 text-left font-semibold">Workers Count</th>
-                    <th className="px-4 py-2 text-left font-semibold">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan="3" className="text-center py-4 text-gray-500">
+                      <td colSpan="5" className="text-center py-4 text-gray-500">
                         Loading...
                       </td>
                     </tr>
@@ -98,16 +114,16 @@ const CompletedTrain = () => {
                         <td className="px-4 py-2 text-gray-800">
                           {new Date(train.updatedAt).toLocaleDateString("en-IN")}
                         </td>
-                              <td className="px-4 py-2 text-gray-700 capitalize">{train.workers?.length || 0}</td>
-                                                <Link to={`/dashboard/manager/traindetail/${train._id}`}>
-                        Details <FaEdit/>
-                                                 </Link>
+                        <td className="px-4 py-2 text-gray-700 capitalize">
+                          {train.workers?.length || 0}
+                        </td>
+                     
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="3" className="text-center py-4 text-gray-500">
-                        No completed trains found in {selected.toUpperCase()}.
+                      <td colSpan="5" className="text-center py-4 text-gray-500">
+                        No completed trains found in {selectedCategory.toUpperCase()}.
                       </td>
                     </tr>
                   )}

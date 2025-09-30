@@ -27,7 +27,7 @@ const StaffDetails = () => {
           }
         }, [auth?.user]);
   return (
-    <Layout title="Staff Details - Admin">
+    <Layout title="Staff Details - Manager">
       <div className="flex  bg-gray-100">
         {/* Sidebar */}
         <AdminMenu />

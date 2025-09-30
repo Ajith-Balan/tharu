@@ -75,7 +75,7 @@ const Managerhome = () => {
 
 
   return (
-    <Layout title="Dashboard - Admin">
+    <Layout title="Dashboard - Manager">
       <div className="flex min-h-screen bg-gray-100">
         {/* Sidebar */}
         <AdminMenu />

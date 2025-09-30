@@ -5,7 +5,7 @@ import auth from './router/auth.js'
 import mcctrainRoutes from './router/mcctrainRoutes.js'
 import workersRoutes from './router/workersRoutes.js'
 import cors from 'cors'
-
+import chat from './router/chat.js'
 
 dotenv.config()
 connection()
@@ -24,6 +24,7 @@ app.use('/api/v1/auth',auth)
 
 app.use('/api/v1/worker', workersRoutes)
 app.use('/api/v1/mcctrain', mcctrainRoutes)
+app.use('/api/v1/chat', chat)
 
 
 

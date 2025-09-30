@@ -8,15 +8,13 @@ const contractschema = new mongoose.Schema(
       default: "01/12/2024 - 01/20/2026"
 
     },
-    totalcoach:{
-type:Number
-    },
+
       month:{
 type:String
     },
  
-    consumed: {
-      type: Number,
+    status: {
+      type: String,
       required: true,
     },
   billvalue:{

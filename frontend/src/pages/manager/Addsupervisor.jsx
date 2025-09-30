@@ -109,7 +109,7 @@ const Addsupervisor = () => {
   };
 
   return (
-    <Layout title="Add Supervisor">
+    <Layout title="Manager Add Supervisor">
       <div className="flex min-h-screen bg-gray-100">
         {/* Sidebar */}
         <AdminMenu />

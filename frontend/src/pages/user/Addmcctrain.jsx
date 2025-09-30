@@ -11,19 +11,32 @@ const Addmcctrain = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [allWorkers, setAllWorkers] = useState([]);
   const [selectedWorkers, setSelectedWorkers] = useState([]);
-  const [selected, setSelected] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   const options = ["mcc", "acca", "bio", "laundry", "pftr", "pit & yard"];
+  const userWork = auth?.user?.work?.toLowerCase() || "";
+
+  // Tabs to display: user's work only or all
+  const displayedTabs = userWork
+    ? options.filter((opt) => opt === userWork)
+    : options;
+
+  // Initialize selected category
+  useEffect(() => {
+    if (userWork && options.includes(userWork)) {
+      setSelectedCategory(userWork);
+    }
+  }, [userWork]);
 
   const [trainDetails, setTrainDetails] = useState({
-    work: "",
+    work: selectedCategory,
     trainno: "",
     supervisor: auth?.user?._id || "",
     totalcoach: "",
     type: "",
     workers: [],
     status: "processing",
-    suppliedBedsheet: "", // for acca
+    suppliedBedsheet: "",
   });
 
   // derived values
@@ -45,7 +58,7 @@ const Addmcctrain = () => {
     fetchWorkers();
   }, []);
 
-  // Select worker
+  // Handle worker selection
   const handleSelectWorker = (worker) => {
     if (!selectedWorkers.find((w) => w._id === worker._id)) {
       const updated = [...selectedWorkers, worker];
@@ -58,7 +71,6 @@ const Addmcctrain = () => {
     setSearchTerm("");
   };
 
-  // Remove worker
   const handleRemoveWorker = (workerId) => {
     const updated = selectedWorkers.filter((w) => w._id !== workerId);
     setSelectedWorkers(updated);
@@ -68,32 +80,29 @@ const Addmcctrain = () => {
     });
   };
 
-  // Filtered workers for search
   const filteredWorkers = allWorkers.filter(
     (w) =>
       w.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
       !selectedWorkers.some((sel) => sel._id === w._id)
   );
 
-  // Train input change
   const handleTrainChange = (e) => {
     const { name, value } = e.target;
     setTrainDetails((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Submit train
   const handleAddTrain = async () => {
     const { trainno, totalcoach, type, workers, supervisor, suppliedBedsheet } =
       trainDetails;
 
     // Validation
-    if (["mcc", "bio", "acca"].includes(selected)) {
-      if ( !workers || !supervisor) {
+    if (["mcc", "bio", "acca"].includes(selectedCategory)) {
+      if (!workers || !supervisor) {
         toast.error("Please fill all required fields.");
         return;
       }
- 
-      if (selected === "acca" && !suppliedBedsheet) {
+
+      if (selectedCategory === "acca" && !suppliedBedsheet) {
         toast.error("Please enter supplied bedsheet count.");
         return;
       }
@@ -110,16 +119,16 @@ const Addmcctrain = () => {
         `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/create-mcctrain`,
         {
           ...trainDetails,
-          reqq ,
+          reqq,
           used,
-          work: selected,
+          work: selectedCategory,
         }
       );
 
       if (data?.success) {
         toast.success("Train details added successfully!");
         setTrainDetails({
-          work: "",
+          work: selectedCategory,
           trainno: "",
           supervisor: auth?.user?._id || "",
           totalcoach: "",
@@ -129,7 +138,6 @@ const Addmcctrain = () => {
           suppliedBedsheet: "",
         });
         setSelectedWorkers([]);
-        setSelected("");
       } else {
         toast.error(data?.message || "Failed to add train details.");
       }
@@ -141,7 +149,6 @@ const Addmcctrain = () => {
     }
   };
 
-  // Reusable input field component
   const InputField = ({ label, name, type = "text", value, onChange }) => (
     <div>
       <label className="block text-gray-700 mt-2">{label}</label>
@@ -158,25 +165,23 @@ const Addmcctrain = () => {
   return (
     <Layout title="Dashboard - Add MCC Train">
       <div className="flex min-h-screen bg-gray-100">
-        {/* Left Sidebar */}
         <div className="w-64 bg-white shadow-md">
           <UserMenu />
         </div>
 
-        {/* Main Content */}
         <div className="flex-1 p-5">
           <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-2xl font-bold mb-6">Add Work Details</h2>
 
-            {/* Option Buttons */}
+            {/* Category buttons */}
             <div className="flex flex-wrap mb-6 gap-2">
-              {options.map((opt) => (
+              {displayedTabs.map((opt) => (
                 <button
                   key={opt}
-                  onClick={() => setSelected(opt)}
-                  className={`px-4 py-2 border transition ${
-                    selected === opt
-                      ? "bg-blue-600 text-sm text-white border-blue-600"
+                  onClick={() => setSelectedCategory(opt)}
+                  className={`px-4 py-2 border rounded transition ${
+                    selectedCategory === opt
+                      ? "bg-blue-600 text-white border-blue-600"
                       : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
                   }`}
                 >
@@ -187,28 +192,25 @@ const Addmcctrain = () => {
 
             <div className="space-y-4">
               {/* MCC */}
-              {selected === "mcc" && (
+              {selectedCategory === "mcc" && (
                 <>
-                  <label className="block text-gray-700 mb-2">Train Number</label>
-
+                <label className="block text-gray-700 mb-2">"Train Number</label>
                   <input
                     label="Train Number"
                     name="trainno"
-                    type="number"
-                 className="w-1/2 px-2 bg-gray-100 border border-gray-300"
+                   className="w-1/2 px-2 bg-gray-100 border border-gray-300"
 
                     value={trainDetails.trainno}
                     onChange={handleTrainChange}
+                    type="number"
                   />
-
                   <label className="block text-gray-700 mb-2">Total Coaches</label>
-
                   <input
                     label="Total Coaches"
                     name="totalcoach"
+                className="w-1/2 px-2 bg-gray-100 border border-gray-300"
+            
                     type="number"
-                    className="w-1/2 px-2 bg-gray-100 border border-gray-300"
-
                     value={trainDetails.totalcoach}
                     onChange={handleTrainChange}
                   />
@@ -224,13 +226,13 @@ const Addmcctrain = () => {
                       <option value="" disabled>
                         Select train type
                       </option>
-                      <option value="Primary">Intensive</option>
-                      <option value="Secondary">Normal</option>
+                      <option value="Primary">Primary</option>
+                      <option value="Secondary">Secondary</option>
                     </select>
                   </div>
 
                   <label className="block text-blue-700 mb-2 font-medium">
-                    Required Staff Count :
+                    Required Staff Count:
                     <input
                       type="text"
                       value={reqq}
@@ -240,7 +242,7 @@ const Addmcctrain = () => {
                   </label>
 
                   <label className="block text-green-700 mb-2 font-medium">
-                    Selected Staff Count :
+                    Selected Staff Count:
                     <input
                       type="text"
                       value={used}
@@ -252,32 +254,27 @@ const Addmcctrain = () => {
               )}
 
               {/* BIO */}
-              {selected === "bio" && (
+              {selectedCategory === "bio" && (
                 <>
-              <label className="block text-gray-700 mb-2">Train Number</label>
-
+                <label className="block text-gray-700 mb-2">Total Number</label>
                   <input
                     label="Train Number"
                     name="trainno"
                     className="w-1/2 px-2 bg-gray-100 border border-gray-300"
-
                     value={trainDetails.trainno}
                     onChange={handleTrainChange}
                   />
                   <label className="block text-gray-700 mb-2">Total Tank</label>
-                 
                   <input
-                    label="Total Coaches"
+                    label="Total Tank"
                     name="totalcoach"
+                    className="w-1/2 px-2 bg-gray-100 border border-gray-300"
                     type="number"
-                 className="w-1/2 px-2 bg-gray-100 border border-gray-300"
-
                     value={trainDetails.totalcoach}
                     onChange={handleTrainChange}
                   />
-
                   <label className="block text-blue-700 mb-2 font-medium">
-                    Required Staff Count :
+                    Required Staff Count:
                     <input
                       type="text"
                       value={reqq}
@@ -285,9 +282,8 @@ const Addmcctrain = () => {
                       className="ml-2 border rounded px-2 py-1 bg-gray-100"
                     />
                   </label>
-
                   <label className="block text-green-700 mb-2 font-medium">
-                    Selected Staff Count :
+                    Selected Staff Count:
                     <input
                       type="text"
                       value={used}
@@ -299,24 +295,28 @@ const Addmcctrain = () => {
               )}
 
               {/* ACCA */}
-              {selected === "acca" && (
+              {selectedCategory === "acca" && (
                 <>
-                  <InputField
+            <label className="block text-gray-700 mb-2">Total Number</label>
+
+                  <input
                     label="Train Number"
                     name="trainno"
+                    className="w-1/2 px-2 bg-gray-100 border border-gray-300"
                     value={trainDetails.trainno}
                     onChange={handleTrainChange}
                   />
-                  <InputField
+                  <label className="block text-gray-700 mb-2">Total Coaches</label>
+                  <input
                     label="Total Coaches"
                     name="totalcoach"
                     type="number"
+                    className="w-1/2 px-2 bg-gray-100 border border-gray-300"
                     value={trainDetails.totalcoach}
                     onChange={handleTrainChange}
                   />
-
                   <label className="block text-blue-700 mb-2 font-medium">
-                    Required Bedsheet Count :
+                    Required Bedsheet Count:
                     <input
                       type="text"
                       value={trainDetails.totalcoach * 7 || 0}
@@ -324,9 +324,8 @@ const Addmcctrain = () => {
                       className="ml-2 border rounded px-2 py-1 bg-gray-100"
                     />
                   </label>
-
                   <label className="block text-green-700 mb-2 font-medium">
-                    Supplied Bedsheet Count :
+                    Supplied Bedsheet Count:
                     <input
                       name="suppliedBedsheet"
                       type="number"
@@ -338,13 +337,11 @@ const Addmcctrain = () => {
                 </>
               )}
 
-              {/* Workers input (always visible) */}
+              {/* Workers */}
               <div>
                 <label className="block text-gray-700 mb-2 font-medium">
                   Workers
                 </label>
-
-                {/* Selected Workers */}
                 <div className="flex flex-wrap gap-2 mb-2">
                   {selectedWorkers.map((worker) => (
                     <div
@@ -361,8 +358,6 @@ const Addmcctrain = () => {
                     </div>
                   ))}
                 </div>
-
-                {/* Search Input */}
                 <input
                   type="text"
                   placeholder="Search and add workers"
@@ -370,8 +365,6 @@ const Addmcctrain = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
-
-                {/* Dropdown Suggestions */}
                 {searchTerm && filteredWorkers.length > 0 && (
                   <ul className="mt-2 border border-gray-300 rounded-lg bg-white shadow max-h-40 overflow-y-auto z-10 relative">
                     {filteredWorkers.map((worker) => (

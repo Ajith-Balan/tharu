@@ -76,6 +76,7 @@ try {
 }
 }
 
+
 export const loginController = async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -113,8 +114,10 @@ export const loginController = async (req, res) => {
           name: user.name,
           email: user.email,
           phone: user.phone,
-          designation:user.type,
+          designation:user.designation,
           role: user.role,
+         work: user.work,
+
         },
         token,
       });

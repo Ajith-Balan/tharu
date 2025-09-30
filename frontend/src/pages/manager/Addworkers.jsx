@@ -101,7 +101,7 @@ const Addworkers = () => {
   };
 
   return (
-   <Layout>
+   <Layout title='Manager Add Worker'>
       <div className="flex bg-gray-100 ">
         {/* Sidebar */}
           <AdminMenu />
