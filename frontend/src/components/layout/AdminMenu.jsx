@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/Auth";
 import { toast } from "react-toastify";
+import axios from "axios";
 import {
   FaHome,
   FaFileInvoiceDollar,
@@ -21,6 +22,10 @@ const ManagerMenu = () => {
   const [auth, setAuth] = useAuth();
   const navigate = useNavigate();
 
+  const [chats, setChats] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [todayCount, setTodayCount] = useState(0);
+
   const handleLogout = () => {
     setAuth({ ...auth, user: null, token: "" });
     localStorage.removeItem("auth");
@@ -28,29 +33,41 @@ const ManagerMenu = () => {
     setTimeout(() => navigate("/"), 1000);
   };
 
-    // Fetch chats
-    const fetchChats = async () => {
-      try {
-        setLoading(true);
-        const res = await axios.get(
-          `${import.meta.env.VITE_APP_BACKEND}/api/v1/chat/getchats`
-        );
-  
-        let allChats = res.data.chats || res.data.chat || [];
-        allChats = allChats.sort(
-          (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
-        );
-        setChats(allChats);
-      } catch (err) {
-        console.error("Error fetching chats:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Fetch chats
+  const fetchChats = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_BACKEND}/api/v1/chat/getchats`
+      );
+
+      let allChats = res.data.chats || res.data.chat || [];
+      allChats = allChats.sort(
+        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+      );
+      setChats(allChats);
+
+      // ✅ Count only today's chats
+      const today = new Date().toISOString().split("T")[0];
+      const todayChats = allChats.filter(
+        (chat) => new Date(chat.createdAt).toISOString().split("T")[0] === today &&
+     chat.user !== auth?.user?.name
+      );
+      setTodayCount(todayChats.length);
+    } catch (err) {
+      console.error("Error fetching chats:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchChats();
+  }, []);
 
   const menuItems = [
     { to: "/dashboard/manager", label: "Home", icon: <FaHome /> },
-     { to: "/dashboard/manager/connect", label: "Connect", icon: <BsChatText /> },
+    { to: "/dashboard/manager/connect", label: "Connect", icon: <BsChatText /> },
     { to: "/dashboard/manager/bills", label: "Bill Details", icon: <FaFileInvoiceDollar /> },
     { to: "/dashboard/manager/addworkers", label: "Add Worker", icon: <FaUserPlus /> },
     { to: "/dashboard/manager/attendance", label: "Attendance", icon: <FaClipboardList /> },
@@ -59,21 +76,31 @@ const ManagerMenu = () => {
     { to: "/dashboard/manager/completed", label: "Completed Works", icon: <FaCheckCircle /> },
     { to: "/dashboard/manager/staffdetails", label: "Staff Details", icon: <FaUsers /> },
     { to: "/dashboard/user", label: "Supervisor Tab", icon: <FaTrain /> },
-
   ];
 
   return (
     <aside className="w-64 bg-white shadow-lg rounded-2xl p-6 hidden md:block transition-all duration-300">
-      <h2 className="text-2xl font-bold text-red-600 mb-6 border-b pb-2">Quick Links</h2>
+      <h2 className="text-2xl font-bold text-red-600 mb-6 border-b pb-2">
+        Quick Links
+      </h2>
       <nav className="space-y-3">
         {menuItems.map((item, index) => (
           <Link
             key={index}
             to={item.to}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
+            className="flex items-center justify-between px-3 py-2 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
           >
-            <span className="text-lg">{item.icon}</span>
-            <span className="text-sm font-medium">{item.label}</span>
+            <div className="flex items-center gap-3">
+              <span className="text-lg">{item.icon}</span>
+              <span className="text-sm font-medium">{item.label}</span>
+            </div>
+
+            {/* ✅ Show today's chat count only for Connect */}
+            {item.label === "Connect" && todayCount > 0 && (
+              <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+                {todayCount}
+              </span>
+            )}
           </Link>
         ))}
 

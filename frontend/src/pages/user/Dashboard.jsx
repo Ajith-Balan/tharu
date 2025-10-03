@@ -143,7 +143,7 @@ const Dashboard = () => {
       <div className="flex bg-gray-100 min-h-screen">
         <UserMenu />
         <div className="p-6 flex-1 w-full">
-          <h1 className="text-2xl font-bold mb-4">Live Trains Dashboard</h1>
+          <h1 className="text-2xl font-bold mb-4">Live Work Details</h1>
 
           {/* Tabs */}
           <ul className="flex border-b mb-4 flex-wrap">

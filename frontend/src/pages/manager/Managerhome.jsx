@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import Layout from '../../components/layout/Layout';
-import { useAuth } from '../../context/Auth';
-import axios from 'axios';
-import AdminMenu from '../../components/layout/AdminMenu.jsx';
+import React, { useState, useEffect } from "react";
+import Layout from "../../components/layout/Layout";
+import { useAuth } from "../../context/Auth";
+import axios from "axios";
+import AdminMenu from "../../components/layout/AdminMenu.jsx";
 import {
   LineChart,
   Line,
@@ -12,142 +12,208 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
+import { FaSearch } from "react-icons/fa";
+import moment from "moment";
+
 const Managerhome = () => {
   const [auth] = useAuth();
-  const [liveTrains, setLiveTrains] = useState([]);
   const [trainStats, setTrainStats] = useState({});
-  const [activeTab, setActiveTab] = useState("processing");
-
-
+  const [liveTrains, setLiveTrains] = useState([]);
+  const [allWorkers, setAllWorkers] = useState([]);
+  const [bills, setBills] = useState([]);
+  const [supervisors, setSupervisors] = useState([]);
+  const [completedWork, setCompletedWork] = useState([]);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (auth?.user) {
-      getTrainDetails();
-      getTrainStats();
+      fetchTrainStats();
+      fetchLiveTrains();
+      fetchWorkers();
+      fetchBills();
+      fetchSupervisors();
+      fetchCompletedWork();
     }
   }, [auth?.user]);
 
-  const getTrainDetails = async () => {
+  const fetchTrainStats = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/get-livemcctrain`);
-      setLiveTrains(res.data);
-    } catch (error) {
-      console.error("Error fetching live trains", error);
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/get-completedmcctrain`
+      );
+      setTrainStats(res.data || {});
+    } catch (err) {
+      console.error("Error fetching train stats:", err);
     }
   };
 
-  const getTrainStats = async () => {
+  const fetchLiveTrains = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/get-completedmcctrain`);
-      setTrainStats(res.data);
-    } catch (error) {
-      console.error("Error fetching train stats", error);
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/get-livemcctrain`
+      );
+      setLiveTrains(res.data || []);
+    } catch (err) {
+      console.error("Error fetching live trains:", err);
     }
   };
 
+  const fetchWorkers = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_BACKEND}/api/v1/worker/get-workers`
+      );
+      setAllWorkers(res.data || []);
+    } catch (err) {
+      console.error("Error fetching workers:", err);
+    }
+  };
 
-  const profitData = [
-    { month: "Jan", profit: 50000 },
-    { month: "Feb", profit: 75000 },
-    { month: "Mar", profit: 62000 },
-    { month: "Apr", profit: 83000 },
-    { month: "May", profit: 91000 },
-  ];
+  const fetchBills = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/getbills`
+      );
+      const sortedBills = (res.data.bills || []).sort(
+        (a, b) => new Date(b.month + "-01") - new Date(a.month + "-01")
+      );
+      setBills(sortedBills);
+    } catch (err) {
+      console.error("Error fetching bills:", err);
+    }
+  };
 
+  const fetchSupervisors = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_BACKEND}/api/v1/work/get-workers`
+      );
+      setSupervisors(res.data || []);
+    } catch (err) {
+      console.error("Error fetching supervisors:", err);
+    }
+  };
 
-  const renderStatsCard = (status) => (
-    <div key={status} className="bg-white p-6 rounded-lg shadow-md text-center">
-      <h5 className="text-lg font-semibold text-gray-700">{status} Trains:</h5>
-      <p className="text-md text-gray-600">{trainStats[status] || "Loading..."}</p>
-      <div className="mt-4">
-        <span className={`inline-block px-4 py-2 text-sm font-semibold rounded-full ${
-          status === "Active" ? "text-green-700 bg-green-100" :
-          status === "Completed" ? "text-blue-700 bg-blue-100" :
-          status === "Pending" ? "text-yellow-700 bg-yellow-100" :
-          "text-purple-700 bg-purple-100"
-        }`}>
-          {status}
-        </span>
-      </div>
-    </div>
-  );
+  const fetchCompletedWork = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/get-completed`
+      );
+      setCompletedWork(res.data || []);
+    } catch (err) {
+      console.error("Error fetching completed work:", err);
+    }
+  };
 
+  // Supervisor ID to Name
+  const getSupervisorName = (id) => {
+    const sup = supervisors.find((s) => s._id === id);
+    return sup ? sup.name : id;
+  };
 
+  // Metrics Calculations
+  const passedBillCount = bills.filter((b) => b.status === "Bill Passed").length;
+  const pendingBillCount = bills.filter((b) => b.status !== "Bill Passed").length;
+  const totalBillAmount = bills.reduce((acc, b) => acc + (b.billvalue || 0), 0);
+  const netAmount = bills.reduce((acc, b) => acc + (b.netamount || 0), 0);
+  const totalPenalties = bills.reduce((acc, b) => acc + (b.penalty || 0), 0);
+
+  const totalLiveWork = liveTrains.filter((t) => t.status === "processing").length;
+  const totalCompletedWork = completedWork.filter((t) => t.status === "completed").length;
+
+  const todayLiveWork = liveTrains.filter(
+    (t) =>
+      moment(t.createdAt).isSame(new Date(), "day") &&
+      t.status === "processing"
+  ).length;
+
+  const todayCompletedWork = completedWork.filter(
+    (t) =>
+      moment(t.updatedAt).isSame(new Date(), "day") &&
+      t.status === "completed"
+  ).length;
+
+  // Example profit data (replace with API if available)
+  const profitData = bills.map((b) => ({
+    month: b.month,
+    profit: b.netamount || 0,
+  }));
 
   return (
-    <Layout title="Dashboard - Manager">
+    <Layout title="Manager Dashboard">
       <div className="flex min-h-screen bg-gray-100">
-        {/* Sidebar */}
         <AdminMenu />
-
-        {/* Main Content */}
         <main className="flex-1 p-6">
           {/* Greeting */}
           <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-red-600">Hi, {auth?.user?.name || "Admin"}!</h1>
-            <p className="text-gray-600 mt-2 sm:mt-0">Welcome to the Admin Dashboard</p>
+            <h1 className="text-2xl font-bold text-red-600">
+              Hi, {auth?.user?.name || "Manager"}!
+            </h1>
+            <p className="text-gray-600 mt-2 sm:mt-0">
+              Advanced Manager Dashboard
+            </p>
           </div>
 
-          {/* Stats */}
+          {/* Contract Period & Key Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {["Active", "Completed", "Pending", "Scheduled"].map(renderStatsCard)}
+            <MetricCard title="Passed Bills" value={passedBillCount} color="green" />
+            <MetricCard title="Pending Bills" value={pendingBillCount} color="yellow" />
+            <MetricCard title="Net Amount" value={`₹ ${netAmount.toLocaleString()}`} color="green" />
+            <MetricCard title="Total Bill Amount" value={`₹ ${totalBillAmount.toLocaleString()}`} color="gray" />
+            <MetricCard title="Total Penalties" value={`₹ ${totalPenalties.toLocaleString()}`} color="red" />
+            <MetricCard title="Total Live Work" value={totalLiveWork} color="blue" />
+            <MetricCard title="Total Completed Work" value={totalCompletedWork} color="green" />
+            <MetricCard title="Today Live Work" value={todayLiveWork} color="blue" />
+            <MetricCard title="Today Completed Work" value={todayCompletedWork} color="green" />
           </div>
 
-          {/* Train Tabs */}
-            <div className="flex justify-end items-center gap-4 mb-6">
-            <label className="text-sm font-medium">Filter by:</label>
-            <select className="border rounded p-2">
-              <option value="total">Total</option>
-              <option value="monthly">Monthly</option>
-            </select>
+          {/* Search Filter */}
+          <div className="flex items-center mb-4">
+            <FaSearch className="mr-2 text-gray-500" />
+            <input
+              type="text"
+              placeholder="Search by Train No"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="border rounded p-2 flex-1"
+            />
           </div>
 
-          {/* Business Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white rounded shadow p-4">
-              <h2 className="text-gray-700 font-semibold mb-2">Contract Period</h2>
-              <p className="text-gray-900">01 Jan 2024 – 31 Dec 2025</p>
-            </div>
+          {/* Live Trains Table */}
+          <AdvancedTable
+            title="Live Trains"
+            headers={["Train No","Work","Supervisor","Total Coaches","Type","Req","Used","Status"]}
+            data={liveTrains.filter(
+              (t) =>
+                t.trainno.includes(search) ||
+                getSupervisorName(t.supervisor)
+                  .toLowerCase()
+                  .includes(search.toLowerCase())
+            )}
+            keys={["trainno","work","supervisor","totalcoach","type","reqq","used","status"]}
+            getSupervisorName={getSupervisorName}
+          />
 
-            <div className="bg-white rounded shadow p-4">
-              <h2 className="text-gray-700 font-semibold mb-2">Total Coaches</h2>
-              <p className="text-gray-900 font-bold text-xl">320</p>
-            </div>
+          {/* Workers Table */}
+          <AdvancedTable
+            title="Workers"
+            headers={["Name","Phone","Emp ID","Designation","Wage","Bank","IFSC","Status"]}
+            data={allWorkers.filter((w) =>
+              w.name.toLowerCase().includes(search.toLowerCase())
+            )}
+            keys={["name","phone","empid","designation","wage","bank","ifsccode","status"]}
+          />
 
-            <div className="bg-white rounded shadow p-4">
-              <h2 className="text-gray-700 font-semibold mb-2">Consumed Coaches</h2>
-              <p className="text-gray-900 font-bold text-xl">210</p>
-            </div>
+          {/* Bills Table */}
+          <AdvancedTable
+            title="Bills"
+            headers={["Month","Contract Period","Status","Bill Value","Penalty","Net Amount"]}
+            data={bills.filter((b) => b.month.includes(search))}
+            keys={["month","contractperiod","status","billvalue","penalty","netamount"]}
+            isCurrency
+          />
 
-            <div className="bg-white rounded shadow p-4">
-              <h2 className="text-gray-700 font-semibold mb-2">Total Bill Value</h2>
-              <p className="text-gray-900">₹ 18,00,000</p>
-            </div>
-
-            <div className="bg-white rounded shadow p-4">
-              <h2 className="text-gray-700 font-semibold mb-2">Total Penalty</h2>
-              <p className="text-red-600">₹ 35,000</p>
-            </div>
-
-            <div className="bg-white rounded shadow p-4">
-              <h2 className="text-gray-700 font-semibold mb-2">Tax Breakdown</h2>
-              <ul className="text-gray-800 space-y-1">
-                <li>Taxable Amount: ₹ 17,65,000</li>
-                <li>CGST (9%): ₹ 1,58,850</li>
-                <li>SGST (9%): ₹ 1,58,850</li>
-                <li>Cess: ₹ 5,000</li>
-              </ul>
-            </div>
-
-            <div className="bg-white rounded shadow p-4 lg:col-span-2">
-              <h2 className="text-gray-700 font-semibold mb-2">
-                Net Amount After Tax
-              </h2>
-              <p className="text-green-700 text-xl font-bold">₹ 21,87,700</p>
-            </div>
-          </div>
-
-          {/* Profit Graph */}
+          {/* Profit Chart */}
           <div className="bg-white rounded shadow p-6">
             <h2 className="text-lg font-semibold text-gray-700 mb-4">
               Monthly Profit Overview
@@ -167,11 +233,67 @@ const Managerhome = () => {
               </LineChart>
             </ResponsiveContainer>
           </div>
-         
         </main>
       </div>
     </Layout>
   );
 };
+
+// Metric Card Component
+const MetricCard = ({ title, value, color }) => {
+  const colors = {
+    green: "text-green-700 bg-green-100",
+    red: "text-red-700 bg-red-100",
+    yellow: "text-yellow-700 bg-yellow-100",
+    blue: "text-blue-700 bg-blue-100",
+    gray: "text-gray-700 bg-gray-100",
+  };
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-md text-center">
+      <h5 className="text-gray-500 font-medium">{title}</h5>
+      <p className={`text-xl font-bold ${colors[color] || "text-gray-800"}`}>
+        {value}
+      </p>
+    </div>
+  );
+};
+
+// Advanced Table Component
+const AdvancedTable = ({ title, headers, data, keys, isCurrency, getSupervisorName }) => (
+  <div className="bg-white rounded shadow p-6 mb-8">
+    <h2 className="text-lg font-semibold text-gray-700 mb-4">{title}</h2>
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          <tr>
+            {headers.map((h) => (
+              <th
+                key={h}
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {data.map((item) => (
+            <tr key={item._id}>
+              {keys.map((k) => (
+                <td key={k} className="px-6 py-4">
+                  {k === "supervisor" && getSupervisorName
+                    ? getSupervisorName(item[k])
+                    : isCurrency && typeof item[k] === "number"
+                    ? `₹ ${item[k].toLocaleString()}`
+                    : item[k] || "—"}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
 
 export default Managerhome;

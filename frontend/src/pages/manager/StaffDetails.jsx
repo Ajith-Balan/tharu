@@ -15,7 +15,10 @@ const StaffDetails = () => {
           const res = await axios.get(
             `${import.meta.env.VITE_APP_BACKEND}/api/v1/worker/get-workers`
           );
-          setAllWorkers(res.data || []);
+            const workers = (res.data || []).sort(
+      (a, b) => new Date(b.month + "-01") - new Date(a.month + "-01")
+    );
+          setAllWorkers(workers || []);
         } catch (err) {
           console.error('Error fetching workers:', err);
         }
@@ -52,14 +55,17 @@ const StaffDetails = () => {
                 </Link>
 
                 <h2 className="text-lg font-bold text-gray-800 mb-1">{s.name}</h2>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-900">
                   <span className="font-medium">Phone:</span> {s.phone}
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-900">
                   <span className="font-medium">Emp ID:</span> {s.empid}
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-900">
                   <span className="font-medium">Aadhar:</span> {s.aadhar}
+                </p> 
+                 <p className="text-sm bg-green-100 p-3 text-gray-900">
+                  <span className="font-medium">Status:</span> {s.status}
                 </p>
               </div>
             ))}

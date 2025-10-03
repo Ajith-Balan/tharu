@@ -8,7 +8,7 @@ import {
   Forget,
   verifyotp,
   updatePassword,
-  getoneManager,
+  getoneSupervisor,
 } from '../controllers/authcontroller.js';
 import {  isManager, requireSignIn } from '../middlewares/authmiddleware.js';
 
@@ -23,7 +23,7 @@ router.post('/login', loginController);
 // Test route for admin access, protected by sign-in and admin check
 router.get('/test', requireSignIn,  testController);
 
-router.get('/getmanager/:id',   getoneManager);
+router.get('/getsupervisor',   getoneSupervisor);
 
 
 

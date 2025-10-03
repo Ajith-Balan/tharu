@@ -8,7 +8,8 @@ import UserMenu from '../../components/layout/UserMenu';
 const TrainDetails = () => {
   const [auth] = useAuth();
   const { id } = useParams();
-
+const [supervisors, setSupervisors] = useState([]);
+const [supervisorName, setSupervisorName] = useState("");
   const [liveTrains, setLiveTrains] = useState({});
   const [allWorkers, setAllWorkers] = useState([]);
   const [editRowId, setEditRowId] = useState(null);
@@ -30,6 +31,9 @@ const TrainDetails = () => {
       getLiveTrain();
     }
   }, [auth?.user]);
+
+
+
 
   // Fetch all workers
   useEffect(() => {
@@ -59,6 +63,35 @@ const TrainDetails = () => {
       setLoading(false);
     }
   };
+
+  
+    // fetch supervisors
+const fetchSupervisors = async () => {
+  try {
+    const res = await axios.get(
+      `${import.meta.env.VITE_APP_BACKEND}/api/v1/auth/getsupervisor`
+    );
+    setSupervisors(res.data.supervisor || []);
+  } catch (error) {
+    console.error("Error fetching supervisors:", error);
+  }
+};
+
+
+useEffect(() => {
+  fetchSupervisors();
+}, []);
+
+
+// run when liveTrains or supervisors change → find correct supervisor
+useEffect(() => {
+  if (liveTrains?.supervisor && supervisors.length > 0) {
+    const sup = supervisors.find((s) => s._id === liveTrains.supervisor);
+    setSupervisorName(sup ? sup.name : "Not Assigned");
+  }
+}, [liveTrains, supervisors]);
+
+
 
  const handleEditClick = (train) => {
   const detailed = (train.workers || []).map((workerId) =>
@@ -105,7 +138,7 @@ const TrainDetails = () => {
 
         <div className="flex justify-between  items-center mb-6">
          
-          <h1 className="text-2xl font-bold text-gray-800">Train Details</h1>
+          <h1 className="text-2xl font-bold text-gray-800">Live Work Details</h1>
           {editRowId === liveTrains._id ? (
             <button
               onClick={() => handleSaveClick(liveTrains._id)}
@@ -155,7 +188,7 @@ const TrainDetails = () => {
       })}</span>
   </div>
 </div> 
-          <label className="block text-gray-700 font-medium">Train No</label>
+          <label className="block text-gray-700 font-medium">Train No </label>
               {editRowId === liveTrains._id ? (
                 <input
                   type="text"
@@ -186,6 +219,11 @@ const TrainDetails = () => {
                 <p className="capitalize text-gray-800">{liveTrains.status}</p>
               )}
             </div>
+            
+                <div>
+  <label className="block text-gray-700 font-medium">Supervisor </label>
+  <p className="capitalize text-gray-800">{supervisorName}</p>
+</div>
 
             {/* Total Coaches */}
             <div>

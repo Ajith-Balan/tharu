@@ -10,6 +10,7 @@ const Addbill = () => {
     billvalue: "",
     penalty: "",
     netamount: "",
+    work:""
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -64,6 +65,25 @@ const handleSubmit = async (e) => {
       <div className="max-w-xl mx-auto mt-10 bg-white p-6 rounded shadow">
         <h2 className="text-xl font-semibold mb-4">Add Monthly Bill</h2>
         <form className="grid grid-cols-1 gap-4" onSubmit={handleSubmit}>
+
+           <div>
+            <label className="block mb-1 text-gray-700">Work</label>
+            <select
+              name="work"
+              value={formData.work}
+              onChange={handleChange}
+              required
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">-- Select Work --</option>
+              <option value="mcc">MCC</option>
+              <option value="acca">ACCA</option>
+              <option value="bio">BIO TOILET</option>
+              <option value="laundry">LAUNDRY</option>
+              <option value="pftr">PFTR</option>
+              <option value="pit & yard">PIT & YARD</option>
+            </select>
+          </div>
           {/* Month picker */}
           <div>
             <label className="block mb-1 text-gray-700">Month</label>

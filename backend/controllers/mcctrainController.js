@@ -107,13 +107,13 @@ export async function updatetrain(req,res){
 
 export async function createcontractController(req, res) {
   try {
-    const { month,status,billvalue,penalty,netamount } = req.body;
+    const { month,status,billvalue,penalty,netamount,work } = req.body;
 
     // Validation (add additional checks if necessary)
 
     // Create the train
     const contract = await contractModel.create({
-      month,status,billvalue,penalty,netamount
+      month,status,billvalue,penalty,netamount,work
     });
 
     // Send success response with the created site

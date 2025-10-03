@@ -1,6 +1,6 @@
 import express from "express"
 import { isManager, requireSignIn } from "../middlewares/authmiddleware.js"
-import { findifsc, getOneworker, getworkers, registerController, updateProfile } from "../controllers/workersController.js"
+import { bulkUploadController, findifsc, getOneworker, getworkers, registerController, updateProfile, upload } from "../controllers/workersController.js"
 
 const router = express.Router()
 
@@ -18,6 +18,9 @@ router.get('/getoneworker/:id', getOneworker)
 
 
 router.put('/update-worker/:id', updateProfile)
+
+router.post('/uploadbulkdata',upload, bulkUploadController)
+
 
 
 // router.delete('/delete-worktype/:id', deletetype)

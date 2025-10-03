@@ -142,14 +142,14 @@ export const loginController = async (req, res) => {
 
 
 
-  export const getoneManager = async (req, res) => {
+  export const getoneSupervisor = async (req, res) => {
     try {
-      const { id } = req.params; // Extract `id` from request parameters
+      // Extract `id` from request parameters
   
       // Find one user with role 2 for the given type
-      const manager = await userModel.findOne({ type: id || auth.user.type, role: 2 });
+      const supervisor = await userModel.find();
   
-      if (!manager) {
+      if (!supervisor) {
         return res.status(404).send({
           success: false,
           message: 'Manager not found for the given type',
@@ -159,7 +159,7 @@ export const loginController = async (req, res) => {
       // Respond with the manager data
       res.status(200).send({
         success: true,
-        manager,
+        supervisor,
       });
     } catch (error) {
       console.error(error);

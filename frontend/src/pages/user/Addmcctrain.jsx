@@ -40,7 +40,7 @@ const Addmcctrain = () => {
   });
 
   // derived values
-  const reqq = trainDetails.totalcoach ? trainDetails.totalcoach * 6 : 0;
+  const reqq = trainDetails.totalcoach ? trainDetails.totalcoach * 0.6 : 0;
   const used = selectedWorkers.length;
 
   // Fetch all workers
@@ -256,7 +256,7 @@ const Addmcctrain = () => {
               {/* BIO */}
               {selectedCategory === "bio" && (
                 <>
-                <label className="block text-gray-700 mb-2">Total Number</label>
+                <label className="block text-gray-700 mb-2">Train Number</label>
                   <input
                     label="Train Number"
                     name="trainno"
@@ -277,7 +277,7 @@ const Addmcctrain = () => {
                     Required Staff Count:
                     <input
                       type="text"
-                      value={reqq}
+                      value={trainDetails.totalcoach * 0.04}
                       readOnly
                       className="ml-2 border rounded px-2 py-1 bg-gray-100"
                     />

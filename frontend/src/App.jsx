@@ -35,6 +35,7 @@ import Editstaff from './pages/manager/Editstaff';
 import Billdetails from './pages/manager/Billdetails';
 import Addbill from './pages/manager/Addbill';
 import Connect from './pages/manager/Connect';
+import BulkUploadWorkers from './pages/manager/BulkUploadWorkers';
 function App() {
   return (
     <>
@@ -54,6 +55,7 @@ function App() {
           <Route path='admin' element={<AdminDashboard />} />
           <Route path='admin/Live-train/:id' element={<LiveTrain />} />
           <Route path='admin/addsupervisors' element={<Addsupervisor />} />
+
           <Route path='admin/addworkers' element={<Addworkers/>} />
 
 
@@ -80,6 +82,7 @@ function App() {
 
 
           <Route path='manager/addsupervisors' element={<Addsupervisor />} />
+           <Route path='manager/addworkerss' element={<BulkUploadWorkers />} />
 
           <Route path='manager/addworkers' element={<Addworkers/>} />
           <Route path='manager/addwork' element={<Addmcctrain/>} />

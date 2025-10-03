@@ -10,6 +10,7 @@ const Completedtrain = () => {
   const [completedDates, setCompletedDates] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState("mcc"); // Default tab
+  const [supervisors, setSupervisors] = useState([]); // store all supervisors
 
   const options = ["mcc", "acca", "bio", "laundry", "pftr", "pit & yard"];
 
@@ -36,6 +37,22 @@ const Completedtrain = () => {
       setLoading(false);
     }
   };
+
+    // Fetch all supervisors once
+  const fetchSupervisors = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_BACKEND}/api/v1/auth/getsupervisor`
+      );
+      setSupervisors(res.data.supervisor || []);
+    } catch (error) {
+      console.error("Error fetching supervisors:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSupervisors();
+  }, []);
 
   return (
     <Layout title="Manager Completed Trains">
@@ -75,6 +92,7 @@ const Completedtrain = () => {
                     <th className="px-4 py-2 text-left font-semibold">Status</th>
                     <th className="px-4 py-2 text-left font-semibold">Date</th>
                     <th className="px-4 py-2 text-left font-semibold">Workers Count</th>
+                    <th className="px-4 py-2 text-left font-semibold">Supervisor</th>
                     <th className="px-4 py-2 text-left font-semibold">Actions</th>
                   </tr>
                 </thead>
@@ -87,6 +105,7 @@ const Completedtrain = () => {
                     </tr>
                   ) : completedDates.length > 0 ? (
                     completedDates.map((train) => (
+                      
                       <tr
                         key={train._id}
                         className="hover:bg-gray-50 border-t border-gray-200"
@@ -98,10 +117,20 @@ const Completedtrain = () => {
                         <td className="px-4 py-2 text-gray-800">
                           {new Date(train.updatedAt).toLocaleDateString("en-IN")}
                         </td>
+                       
                               <td className="px-4 py-2 text-gray-700 capitalize">{train.workers?.length || 0}</td>
-                                                <Link to={`/dashboard/manager/traindetail/${train._id}`}>
+                          <td className="border px-4 py-2 text-gray-800">
+  {train.supervisor
+    ? supervisors.find((sup) => sup._id === train.supervisor)?.name || "Unknown"
+    : "Not Assigned"}
+</td>
+
+                              <td>
+                                             <Link to={`/dashboard/manager/traindetail/${train._id}`}>
                         Details <FaEdit/>
                                                  </Link>
+                                                    
+                                </td>  
                       </tr>
                     ))
                   ) : (

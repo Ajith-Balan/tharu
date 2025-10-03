@@ -8,6 +8,11 @@ const contractschema = new mongoose.Schema(
       default: "01/12/2024 - 01/20/2026"
 
     },
+    
+
+     work:{
+type:String
+    },
 
       month:{
 type:String

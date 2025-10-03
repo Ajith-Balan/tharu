@@ -5,6 +5,8 @@ import JWT from "jsonwebtoken"
 import dotenv from 'dotenv'
 import axios from 'axios'
 
+import multer from "multer";
+import xlsx from "xlsx";
 
 
 
@@ -66,6 +68,70 @@ try {
     
 }
 }
+
+
+
+
+
+// Multer setup for file upload
+const storage = multer.memoryStorage();
+export const upload = multer({ storage }).single("file");
+
+export const bulkUploadController = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).send({ success: false, msg: "No file uploaded" });
+    }
+
+    // Convert buffer to workbook
+    const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const jsonData = xlsx.utils.sheet_to_json(sheet);
+
+    if (jsonData.length === 0) {
+      return res.status(400).send({ success: false, msg: "Empty Excel file" });
+    }
+
+    // Insert workers into DB (ignore duplicates by aadhar)
+    let inserted = [];
+    for (const row of jsonData) {
+      const { name, phone, aadhar, empid, wage, acnumber, ifsccode, bank, branch, uanno, esino, designation } = row;
+
+      if (!aadhar) continue; // skip if no aadhar
+
+      const exists = await workersModel.findOne({ aadhar });
+      if (!exists) {
+        const worker = new workersModel({
+          name,
+          phone,
+          aadhar,
+          empid,
+          wage,
+          acnumber,
+          ifsccode,
+          bank,
+          branch,
+          uanno,
+          esino,
+          designation
+        });
+        await worker.save();
+        inserted.push(worker);
+      }
+    }
+
+    res.status(201).send({
+      success: true,
+      msg: `${inserted.length} workers uploaded successfully`,
+      workers: inserted,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ success: false, msg: "Error uploading workers", error });
+  }
+};
+
 
 
 

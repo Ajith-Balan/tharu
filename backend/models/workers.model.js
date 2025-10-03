@@ -42,7 +42,7 @@ const workerSchema=new mongoose.Schema
         type: String,
       },
         uanno: {
-        type: Number,
+        type: String,
       },
          
           esino: {
