@@ -16,12 +16,8 @@ const Addmcctrain = () => {
   const options = ["mcc", "acca", "bio", "laundry", "pftr", "pit & yard"];
   const userWork = auth?.user?.work?.toLowerCase() || "";
 
-  // Tabs to display: user's work only or all
-  const displayedTabs = userWork
-    ? options.filter((opt) => opt === userWork)
-    : options;
+  const displayedTabs = userWork ? options.filter((opt) => opt === userWork) : options;
 
-  // Initialize selected category
   useEffect(() => {
     if (userWork && options.includes(userWork)) {
       setSelectedCategory(userWork);
@@ -39,11 +35,9 @@ const Addmcctrain = () => {
     suppliedBedsheet: "",
   });
 
-  // derived values
   const reqq = trainDetails.totalcoach ? trainDetails.totalcoach * 0.6 : 0;
   const used = selectedWorkers.length;
 
-  // Fetch all workers
   useEffect(() => {
     const fetchWorkers = async () => {
       try {
@@ -58,15 +52,11 @@ const Addmcctrain = () => {
     fetchWorkers();
   }, []);
 
-  // Handle worker selection
   const handleSelectWorker = (worker) => {
     if (!selectedWorkers.find((w) => w._id === worker._id)) {
       const updated = [...selectedWorkers, worker];
       setSelectedWorkers(updated);
-      setTrainDetails({
-        ...trainDetails,
-        workers: updated.map((w) => w._id),
-      });
+      setTrainDetails({ ...trainDetails, workers: updated.map((w) => w._id) });
     }
     setSearchTerm("");
   };
@@ -74,10 +64,7 @@ const Addmcctrain = () => {
   const handleRemoveWorker = (workerId) => {
     const updated = selectedWorkers.filter((w) => w._id !== workerId);
     setSelectedWorkers(updated);
-    setTrainDetails({
-      ...trainDetails,
-      workers: updated.map((w) => w._id),
-    });
+    setTrainDetails({ ...trainDetails, workers: updated.map((w) => w._id) });
   };
 
   const filteredWorkers = allWorkers.filter(
@@ -92,10 +79,8 @@ const Addmcctrain = () => {
   };
 
   const handleAddTrain = async () => {
-    const { trainno, totalcoach, type, workers, supervisor, suppliedBedsheet } =
-      trainDetails;
+    const { trainno, totalcoach, type, workers, supervisor, suppliedBedsheet } = trainDetails;
 
-    // Validation
     if (["mcc", "bio", "acca"].includes(selectedCategory)) {
       if (!workers || !supervisor) {
         toast.error("Please fill all required fields.");
@@ -117,12 +102,7 @@ const Addmcctrain = () => {
     try {
       const { data } = await axios.post(
         `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/create-mcctrain`,
-        {
-          ...trainDetails,
-          reqq,
-          used,
-          work: selectedCategory,
-        }
+        { ...trainDetails, reqq, used, work: selectedCategory }
       );
 
       if (data?.success) {
@@ -149,32 +129,21 @@ const Addmcctrain = () => {
     }
   };
 
-  const InputField = ({ label, name, type = "text", value, onChange }) => (
-    <div>
-      <label className="block text-gray-700 mt-2">{label}</label>
-      <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="w-1/2 px-2 bg-gray-100 border border-gray-300"
-      />
-    </div>
-  );
-
   return (
     <Layout title="Dashboard - Add MCC Train">
-      <div className="flex min-h-screen bg-gray-100">
-        <div className="w-64 bg-white shadow-md">
+      <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
+        {/* Sidebar */}
+        <div className="w-full md:w-64 bg-white shadow-md md:h-auto">
           <UserMenu />
         </div>
 
-        <div className="flex-1 p-5">
-          <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+        {/* Form */}
+        <div className="flex-1 p-4 md:p-6 overflow-x-hidden">
+          <div className="max-w-3xl mx-auto bg-white p-4 md:p-6 rounded-lg shadow-lg">
             <h2 className="text-2xl font-bold mb-6">Add Work Details</h2>
 
-            {/* Category buttons */}
-            <div className="flex flex-wrap mb-6 gap-2">
+            {/* Category Buttons */}
+            <div className="flex flex-wrap gap-2 mb-6">
               {displayedTabs.map((opt) => (
                 <button
                   key={opt}
@@ -191,157 +160,74 @@ const Addmcctrain = () => {
             </div>
 
             <div className="space-y-4">
-              {/* MCC */}
-              {selectedCategory === "mcc" && (
-                <>
-                <label className="block text-gray-700 mb-2">"Train Number</label>
-                  <input
-                    label="Train Number"
-                    name="trainno"
-                   className="w-1/2 px-2 bg-gray-100 border border-gray-300"
-
-                    value={trainDetails.trainno}
-                    onChange={handleTrainChange}
-                    type="number"
-                  />
-                  <label className="block text-gray-700 mb-2">Total Coaches</label>
-                  <input
-                    label="Total Coaches"
-                    name="totalcoach"
-                className="w-1/2 px-2 bg-gray-100 border border-gray-300"
-            
-                    type="number"
-                    value={trainDetails.totalcoach}
-                    onChange={handleTrainChange}
-                  />
-
+              {/* Dynamic fields based on category */}
+              {(selectedCategory === "mcc" || selectedCategory === "bio" || selectedCategory === "acca") && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-gray-700 mb-2">Type</label>
-                    <select
-                      name="type"
-                      value={trainDetails.type}
+                    <label className="block text-gray-700 mb-2">Train Number</label>
+                    <input
+                      name="trainno"
+                      type="text"
+                      value={trainDetails.trainno}
                       onChange={handleTrainChange}
-                      className="w-full p-2 border border-gray-300 rounded-lg"
-                    >
-                      <option value="" disabled>
-                        Select train type
-                      </option>
-                      <option value="Primary">Primary</option>
-                      <option value="Secondary">Secondary</option>
-                    </select>
+                      className="w-full px-2 py-1 bg-gray-100 border border-gray-300 rounded"
+                    />
                   </div>
-
-                  <label className="block text-blue-700 mb-2 font-medium">
-                    Required Staff Count:
+                  <div>
+                    <label className="block text-gray-700 mb-2">
+                      {selectedCategory === "bio" ? "Total Tank" : "Total Coaches"}
+                    </label>
                     <input
-                      type="text"
-                      value={reqq}
-                      readOnly
-                      className="ml-2 border rounded px-2 py-1 bg-gray-100"
-                    />
-                  </label>
-
-                  <label className="block text-green-700 mb-2 font-medium">
-                    Selected Staff Count:
-                    <input
-                      type="text"
-                      value={used}
-                      readOnly
-                      className="ml-2 border rounded px-2 py-1 bg-gray-100"
-                    />
-                  </label>
-                </>
-              )}
-
-              {/* BIO */}
-              {selectedCategory === "bio" && (
-                <>
-                <label className="block text-gray-700 mb-2">Train Number</label>
-                  <input
-                    label="Train Number"
-                    name="trainno"
-                    className="w-1/2 px-2 bg-gray-100 border border-gray-300"
-                    value={trainDetails.trainno}
-                    onChange={handleTrainChange}
-                  />
-                  <label className="block text-gray-700 mb-2">Total Tank</label>
-                  <input
-                    label="Total Tank"
-                    name="totalcoach"
-                    className="w-1/2 px-2 bg-gray-100 border border-gray-300"
-                    type="number"
-                    value={trainDetails.totalcoach}
-                    onChange={handleTrainChange}
-                  />
-                  <label className="block text-blue-700 mb-2 font-medium">
-                    Required Staff Count:
-                    <input
-                      type="text"
-                      value={trainDetails.totalcoach * 0.04}
-                      readOnly
-                      className="ml-2 border rounded px-2 py-1 bg-gray-100"
-                    />
-                  </label>
-                  <label className="block text-green-700 mb-2 font-medium">
-                    Selected Staff Count:
-                    <input
-                      type="text"
-                      value={used}
-                      readOnly
-                      className="ml-2 border rounded px-2 py-1 bg-gray-100"
-                    />
-                  </label>
-                </>
-              )}
-
-              {/* ACCA */}
-              {selectedCategory === "acca" && (
-                <>
-            <label className="block text-gray-700 mb-2">Total Number</label>
-
-                  <input
-                    label="Train Number"
-                    name="trainno"
-                    className="w-1/2 px-2 bg-gray-100 border border-gray-300"
-                    value={trainDetails.trainno}
-                    onChange={handleTrainChange}
-                  />
-                  <label className="block text-gray-700 mb-2">Total Coaches</label>
-                  <input
-                    label="Total Coaches"
-                    name="totalcoach"
-                    type="number"
-                    className="w-1/2 px-2 bg-gray-100 border border-gray-300"
-                    value={trainDetails.totalcoach}
-                    onChange={handleTrainChange}
-                  />
-                  <label className="block text-blue-700 mb-2 font-medium">
-                    Required Bedsheet Count:
-                    <input
-                      type="text"
-                      value={trainDetails.totalcoach * 7 || 0}
-                      readOnly
-                      className="ml-2 border rounded px-2 py-1 bg-gray-100"
-                    />
-                  </label>
-                  <label className="block text-green-700 mb-2 font-medium">
-                    Supplied Bedsheet Count:
-                    <input
-                      name="suppliedBedsheet"
+                      name="totalcoach"
                       type="number"
-                      value={trainDetails.suppliedBedsheet}
+                      value={trainDetails.totalcoach}
                       onChange={handleTrainChange}
-                      className="ml-2 border rounded px-2 py-1 bg-gray-100"
+                      className="w-full px-2 py-1 bg-gray-100 border border-gray-300 rounded"
                     />
-                  </label>
-                </>
+                  </div>
+                  {selectedCategory !== "bio" && (
+                    <div>
+                      <label className="block text-gray-700 mb-2">Type</label>
+                      <select
+                        name="type"
+                        value={trainDetails.type}
+                        onChange={handleTrainChange}
+                        className="w-full p-2 border border-gray-300 rounded"
+                      >
+                        <option value="" disabled>
+                          Select type
+                        </option>
+                        <option value="Primary">Primary</option>
+                        <option value="Secondary">Secondary</option>
+                      </select>
+                    </div>
+                  )}
+                  {selectedCategory === "acca" && (
+                    <div>
+                      <label className="block text-gray-700 mb-2">Supplied Bedsheet</label>
+                      <input
+                        type="number"
+                        name="suppliedBedsheet"
+                        value={trainDetails.suppliedBedsheet}
+                        onChange={handleTrainChange}
+                        className="w-full px-2 py-1 bg-gray-100 border border-gray-300 rounded"
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <label className="block text-blue-700 mb-2 font-medium">
+                      Required Staff: <span>{reqq}</span>
+                    </label>
+                    <label className="block text-green-700 mb-2 font-medium">
+                      Selected Staff: <span>{used}</span>
+                    </label>
+                  </div>
+                </div>
               )}
 
-              {/* Workers */}
+              {/* Workers Selection */}
               <div>
-                <label className="block text-gray-700 mb-2 font-medium">
-                  Workers
-                </label>
+                <label className="block text-gray-700 mb-2 font-medium">Workers</label>
                 <div className="flex flex-wrap gap-2 mb-2">
                   {selectedWorkers.map((worker) => (
                     <div
@@ -363,7 +249,7 @@ const Addmcctrain = () => {
                   placeholder="Search and add workers"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
                 {searchTerm && filteredWorkers.length > 0 && (
                   <ul className="mt-2 border border-gray-300 rounded-lg bg-white shadow max-h-40 overflow-y-auto z-10 relative">

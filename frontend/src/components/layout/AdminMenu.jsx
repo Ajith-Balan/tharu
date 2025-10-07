@@ -14,8 +14,9 @@ import {
   FaCheckCircle,
   FaTrain,
   FaSignOutAlt,
+  FaBars,
+  FaTimes,
 } from "react-icons/fa";
-
 import { BsChatText } from "react-icons/bs";
 
 const ManagerMenu = () => {
@@ -23,8 +24,8 @@ const ManagerMenu = () => {
   const navigate = useNavigate();
 
   const [chats, setChats] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [todayCount, setTodayCount] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = () => {
     setAuth({ ...auth, user: null, token: "" });
@@ -36,28 +37,24 @@ const ManagerMenu = () => {
   // Fetch chats
   const fetchChats = async () => {
     try {
-      setLoading(true);
       const res = await axios.get(
         `${import.meta.env.VITE_APP_BACKEND}/api/v1/chat/getchats`
       );
-
       let allChats = res.data.chats || res.data.chat || [];
       allChats = allChats.sort(
         (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
       );
-      setChats(allChats);
 
-      // ✅ Count only today's chats
       const today = new Date().toISOString().split("T")[0];
       const todayChats = allChats.filter(
-        (chat) => new Date(chat.createdAt).toISOString().split("T")[0] === today &&
-     chat.user !== auth?.user?.name
+        (chat) =>
+          new Date(chat.createdAt).toISOString().split("T")[0] === today &&
+          chat.user !== auth?.user?.name
       );
       setTodayCount(todayChats.length);
+      setChats(allChats);
     } catch (err) {
       console.error("Error fetching chats:", err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -79,41 +76,71 @@ const ManagerMenu = () => {
   ];
 
   return (
-    <aside className="w-64 bg-white shadow-lg rounded-2xl p-6 hidden md:block transition-all duration-300">
-      <h2 className="text-2xl font-bold text-red-600 mb-6 border-b pb-2">
-        Quick Links
-      </h2>
-      <nav className="space-y-3">
-        {menuItems.map((item, index) => (
-          <Link
-            key={index}
-            to={item.to}
-            className="flex items-center justify-between px-3 py-2 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-lg">{item.icon}</span>
-              <span className="text-sm font-medium">{item.label}</span>
-            </div>
-
-            {/* ✅ Show today's chat count only for Connect */}
-            {item.label === "Connect" && todayCount > 0 && (
-              <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
-                {todayCount}
-              </span>
-            )}
-          </Link>
-        ))}
-
-        {/* Logout */}
+    <>
+      {/* 🔹 Mobile Menu Button */}
+      <div className="md:hidden flex justify-between items-center bg-white shadow p-4">
+        <h2 className="text-xl font-bold text-red-600">Quick Links</h2>
         <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2 w-full rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="text-2xl text-red-600 focus:outline-none"
         >
-          <FaSignOutAlt className="text-lg" />
-          <span className="text-sm font-medium">Logout</span>
+          {menuOpen ? <FaTimes /> : <FaBars />}
         </button>
-      </nav>
-    </aside>
+      </div>
+
+      {/* 🔹 Sidebar (Desktop + Tablet) */}
+      <aside
+        className={`bg-white shadow-lg rounded-2xl p-6 fixed md:static top-0 left-0 h-full w-64 z-50 transform 
+        transition-transform duration-300 ease-in-out 
+        ${menuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
+      >
+        <h2 className="text-2xl font-bold text-red-600 mb-6 border-b pb-2 md:block hidden">
+          Quick Links
+        </h2>
+
+        <nav className="space-y-3 mt-4">
+          {menuItems.map((item, index) => (
+            <Link
+              key={index}
+              to={item.to}
+              onClick={() => setMenuOpen(false)} // Close menu on mobile tap
+              className="flex items-center justify-between px-3 py-2 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-lg">{item.icon}</span>
+                <span className="text-sm font-medium">{item.label}</span>
+              </div>
+
+              {item.label === "Connect" && todayCount > 0 && (
+                <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+                  {todayCount}
+                </span>
+              )}
+            </Link>
+          ))}
+
+          {/* Logout Button */}
+          <button
+            onClick={() => {
+              handleLogout();
+              setMenuOpen(false);
+            }}
+            className="flex items-center gap-3 px-3 py-2 w-full rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
+          >
+            <FaSignOutAlt className="text-lg" />
+            <span className="text-sm font-medium">Logout</span>
+          </button>
+        </nav>
+      </aside>
+
+      {/* 🔹 Background Overlay (when mobile menu is open) */}
+      {menuOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden"
+          onClick={() => setMenuOpen(false)}
+        ></div>
+      )}
+    </>
   );
 };
 

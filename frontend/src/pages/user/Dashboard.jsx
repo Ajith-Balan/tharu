@@ -13,7 +13,10 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [editableData, setEditableData] = useState({ status: "completed" });
 
-  // List of available work categories
+  const [showPopup, setShowPopup] = useState(false);
+  const [selectedTrain, setSelectedTrain] = useState(null);
+  const [returned, setReturned] = useState("");
+
   const TABS = [
     { id: "mcc", label: "MCC" },
     { id: "acca", label: "ACCA" },
@@ -23,25 +26,21 @@ const Dashboard = () => {
     { id: "pit & yard", label: "Pit & Yard" },
   ];
 
-  // Get user's work type
   const userWork = auth?.user?.work?.toLowerCase() || "";
 
-  // Tabs logic
   const filteredTabs =
     userWork && TABS.some((tab) => tab.id === userWork)
       ? TABS.filter((tab) => tab.id === userWork)
-      : TABS; // if no work → show all tabs
+      : TABS;
 
-  // Set default active tab
   useEffect(() => {
     if (userWork && filteredTabs.length > 0) {
       setActiveTab(userWork);
     } else if (!userWork && TABS.length > 0) {
-      setActiveTab(TABS[0].id); // first tab for "no work"
+      setActiveTab(TABS[0].id);
     }
   }, [userWork]);
 
-  // Fetch live trains
   const fetchLiveTrains = async () => {
     try {
       setLoading(true);
@@ -60,15 +59,35 @@ const Dashboard = () => {
     fetchLiveTrains();
   }, []);
 
-  const handleMarkCompleted = async (id) => {
+  const handleMarkCompleted = (train) => {
+    if (activeTab === "acca") {
+      setSelectedTrain(train);
+      setShowPopup(true);
+    } else {
+      updateTrain(train._id, { status: "completed" });
+    }
+  };
+
+  const handlePopupSubmit = async () => {
+    if (!selectedTrain) return;
+    await updateTrain(selectedTrain._id, {
+      status: "completed",
+      returned: Number(returned) || 0,
+    });
+    setShowPopup(false);
+    setSelectedTrain(null);
+    setReturned("");
+  };
+
+  const updateTrain = async (id, data) => {
     try {
       await axios.put(
         `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/update-mcctrain/${id}`,
-        editableData
+        data
       );
       fetchLiveTrains();
     } catch (error) {
-      console.error("Error marking train completed:", error);
+      console.error("Error updating train:", error);
     }
   };
 
@@ -104,31 +123,31 @@ const Dashboard = () => {
         key={train._id}
         className="hover:bg-gray-50 odd:bg-white even:bg-gray-50"
       >
-        <td className="border border-gray-300 px-4 py-2 text-gray-700">
+        <td className="border border-gray-300 px-2 sm:px-4 py-2 text-gray-700 text-sm sm:text-base">
           {train.trainno}
         </td>
-        <td className="border border-gray-300 px-4 py-2 text-gray-700 capitalize">
+        <td className="border border-gray-300 px-2 sm:px-4 py-2 text-gray-700 capitalize text-sm sm:text-base">
           {train.status}
         </td>
-        <td className="border border-gray-300 px-4 py-2 text-gray-700">
+        <td className="border border-gray-300 px-2 sm:px-4 py-2 text-gray-700 text-sm sm:text-base">
           {formatDateTime(train.createdAt)}
         </td>
-        <td className="border border-gray-300 px-4 py-2 text-gray-700">
+        <td className="border border-gray-300 px-2 sm:px-4 py-2 text-gray-700 text-sm sm:text-base">
           {train.workers?.length || 0}
         </td>
-        <td className="border border-gray-300 px-4 py-2">
+        <td className="border border-gray-300 px-2 sm:px-4 py-2">
           <div className="flex flex-wrap gap-2">
             {train.status !== "completed" && (
               <button
-                onClick={() => handleMarkCompleted(train._id)}
-                className="text-sm bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                onClick={() => handleMarkCompleted(train)}
+                className="text-xs sm:text-sm bg-green-500 text-white px-2 sm:px-3 py-1 rounded hover:bg-green-600"
               >
                 Mark as Completed
               </button>
             )}
             <Link
               to={`/dashboard/user/traindetails/${train._id}`}
-              className="text-sm bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 flex items-center gap-1"
+              className="text-xs sm:text-sm bg-yellow-500 text-white px-2 sm:px-3 py-1 rounded hover:bg-yellow-600 flex items-center gap-1"
             >
               <FaEdit />
             </Link>
@@ -140,17 +159,17 @@ const Dashboard = () => {
 
   return (
     <Layout title="Dashboard - User">
-      <div className="flex bg-gray-100 min-h-screen">
+      <div className="flex flex-col md:flex-row bg-gray-100 min-h-screen">
         <UserMenu />
-        <div className="p-6 flex-1 w-full">
-          <h1 className="text-2xl font-bold mb-4">Live Work Details</h1>
+        <div className="p-4 md:p-6 flex-1 w-full">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-4">Live Work Details</h1>
 
           {/* Tabs */}
-          <ul className="flex border-b mb-4 flex-wrap">
+          <ul className="flex flex-wrap border-b mb-4">
             {filteredTabs.map((tab) => (
               <li
                 key={tab.id}
-                className={`cursor-pointer px-6 py-3 font-medium ${
+                className={`cursor-pointer px-3 sm:px-6 py-2 sm:py-3 font-medium text-sm sm:text-base ${
                   activeTab === tab.id
                     ? "border-b-2 border-red-500 text-red-500"
                     : "text-gray-500"
@@ -164,22 +183,22 @@ const Dashboard = () => {
 
           {/* Table */}
           <div className="overflow-x-auto w-full">
-            <table className="min-w-full border border-gray-300 table-fixed text-sm">
-              <thead className="bg-gray-100 text-gray-700 uppercase text-xs tracking-wider sticky top-0 z-10">
+            <table className="min-w-full border border-gray-300 table-auto text-sm sm:text-base">
+              <thead className="bg-gray-100 text-gray-700 uppercase text-xs sm:text-sm tracking-wider sticky top-0 z-10">
                 <tr>
-                  <th className="border border-gray-300 px-4 py-2 text-left bg-gray-100 w-1/5">
+                  <th className="border border-gray-300 px-2 sm:px-4 py-2 text-left w-1/5">
                     Train No
                   </th>
-                  <th className="border border-gray-300 px-4 py-2 text-left bg-gray-100 w-1/5">
+                  <th className="border border-gray-300 px-2 sm:px-4 py-2 text-left w-1/5">
                     Status
                   </th>
-                  <th className="border border-gray-300 px-4 py-2 text-left bg-gray-100 w-1/5">
+                  <th className="border border-gray-300 px-2 sm:px-4 py-2 text-left w-1/5">
                     Created At
                   </th>
-                  <th className="border border-gray-300 px-4 py-2 text-left bg-gray-100 w-1/5">
+                  <th className="border border-gray-300 px-2 sm:px-4 py-2 text-left w-1/5">
                     Workers
                   </th>
-                  <th className="border border-gray-300 px-4 py-2 text-left bg-gray-100 w-1/5">
+                  <th className="border border-gray-300 px-2 sm:px-4 py-2 text-left w-1/5">
                     Actions
                   </th>
                 </tr>
@@ -199,6 +218,43 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Popup Modal */}
+      {showPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 shadow-lg w-11/12 sm:w-96">
+            <h2 className="text-xl font-bold mb-4 text-green-600">
+              Complete Train - {selectedTrain?.trainno}
+            </h2>
+
+            <label className="block text-green-700 mb-2 font-medium">
+              Returned Bedsheet Count:
+              <input
+                name="returned"
+                type="number"
+                value={returned}
+                onChange={(e) => setReturned(e.target.value)}
+                className="mt-2 w-full border rounded px-2 py-1 bg-gray-100"
+              />
+            </label>
+
+            <div className="flex flex-col sm:flex-row justify-end gap-3 mt-4">
+              <button
+                onClick={() => setShowPopup(false)}
+                className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePopupSubmit}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };

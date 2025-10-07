@@ -2,7 +2,7 @@ import mcctrainModel from "../models/mcctrain.model.js";
 import contractModel from "../models/contract.model.js";
 export async function createtrainController(req, res) {
   try {
-    const { work,trainno,supervisor,totalcoach,workers,type,used,reqq,status,suppliedBedsheet } = req.body;
+    const { work,trainno,supervisor,totalcoach,workers,type,used,reqq,status,suppliedBedsheet,returned } = req.body;
 
     // Validation (add additional checks if necessary)
     // if (!trainno ) {
@@ -13,7 +13,7 @@ export async function createtrainController(req, res) {
       
     // Create the train
     const mcctrain = await mcctrainModel.create({
-      work,trainno,supervisor,totalcoach,type,reqq,used,workers,status,suppliedBedsheet
+      work,trainno,supervisor,totalcoach,type,reqq,used,workers,status,suppliedBedsheet,returned
     });
 
     // Send success response with the created site

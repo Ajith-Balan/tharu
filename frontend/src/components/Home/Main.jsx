@@ -27,12 +27,12 @@ const Main = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 3000); 
+    }, 3000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="relative  w-full h-screen flex items-center justify-center bg-gray-800 overflow-hidden">
+    <div className="relative w-full h-screen flex items-center justify-center bg-gray-800 overflow-hidden">
       <div className="w-screen h-screen overflow-hidden">
         <motion.div
           className="flex h-full"
@@ -43,40 +43,44 @@ const Main = () => {
           {images.map((item, index) => (
             <div
               key={index}
-              className="relative min-w-full h-full bg-white overflow-hidden opacity-80 "
+              className="relative min-w-full h-full bg-white overflow-hidden"
             >
               <img
                 src={item.src}
                 alt={`Slide ${index + 1}`}
-                className="w-full h-full object-cover bg-black  "
+                className="w-full h-full object-cover"
               />
-            <motion.div
-  initial={{ x: '-100%', opacity: 0 }}
-  animate={{ x: 0, opacity: 1 }}
-  transition={{ duration: 0.8 }}
-  className="absolute top-1/2 left-10 transform -translate-y-1/2 text-white p-6 text-xl lg:text-6xl font-bold font-space-grotesk"
->
-  {item.text}
-  <br />
-  <button
-    className="mt-4 px-6 py-2 text-lg font-medium bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-lg transition duration-300"
-    onClick={() => alert('Button Clicked!')}
-  >
-    Learn More
-  </button>
-</motion.div>
 
+              <motion.div
+                initial={{ x: '-100%', opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ duration: 0.8 }}
+                className="absolute top-1/2 left-4 sm:left-8 md:left-12 transform -translate-y-1/2 
+                text-white p-4 sm:p-6 rounded-lg bg-black/40 backdrop-blur-sm"
+              >
+                <h2
+                  className="font-bold font-space-grotesk 
+                  text-2xl sm:text-3xl md:text-4xl lg:text-6xl leading-tight"
+                >
+                  {item.text}
+                </h2>
+
+                <button
+                  className="mt-3 sm:mt-4 px-4 sm:px-6 py-2 sm:py-3 
+                  text-sm sm:text-base md:text-lg font-medium 
+                  bg-teal-600 hover:bg-teal-700 text-white rounded-lg 
+                  shadow-lg transition duration-300"
+                  onClick={() => alert('Button Clicked!')}
+                >
+                  Learn More
+                </button>
+              </motion.div>
             </div>
           ))}
         </motion.div>
       </div>
-     
-    
     </div>
   );
 };
 
 export default Main;
-
-
-

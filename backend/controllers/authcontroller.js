@@ -12,7 +12,7 @@ dotenv.config()
 
 export const registerController = async (req,res)=>{
 try {
-    const { name,email, phone,aadhar,empid,wage,acnumber,ifsccode,bank,branch,uanno,esino,designation,password,sitename,work } = req.body; 
+    const { name,email, phone,aadhar,empid,wage,acnumber,ifsccode,bank,branch,uanno,esino,designation,password,sitename,work,role } = req.body; 
     if (!name) {
         return res.send({ error: "Name is Required" });
       }
@@ -40,6 +40,19 @@ try {
         msg: "Already Register please login",
       });
     }
+
+
+      // Generate new usercode
+    const prefix = "EMP";
+    const latestUser = await userModel.findOne().sort({ createdAt: -1 });
+
+    let newUserCode;
+    if (latestUser?.empid) {
+      const lastCodeNum = parseInt(latestUser.empid.replace(prefix, "")) || 0;
+      newUserCode = `${prefix}${lastCodeNum + 1}`;
+    } else {
+      newUserCode = `${prefix}0`; // starting code
+    }
     //register user
     const hashedPassword = await hashPassword(password);
     //save
@@ -50,7 +63,7 @@ try {
        work,
         phone,
         aadhar,
-        empid,
+        empid: newUserCode,
         wage,
         acnumber,
         ifsccode,
@@ -60,6 +73,7 @@ try {
         esino,
         designation,
       password: hashedPassword,
+      role
       
       
     }).save();

@@ -5,6 +5,7 @@ import { useAuth } from "../../context/Auth";
 import AdminMenu from '../../components/layout/AdminMenu';
 import { Link } from "react-router-dom";
 import { FaEdit } from "react-icons/fa";
+
 const Completedtrain = () => {
   const [auth] = useAuth();
   const [completedDates, setCompletedDates] = useState([]);
@@ -14,7 +15,7 @@ const Completedtrain = () => {
 
   const options = ["mcc", "acca", "bio", "laundry", "pftr", "pit & yard"];
 
-  // Fetch on mount and when selected category changes
+  // Fetch completed trains
   useEffect(() => {
     if (auth?.user && selected) {
       fetchCompletedTrains();
@@ -27,9 +28,10 @@ const Completedtrain = () => {
       const res = await axios.get(
         `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/get-completedmcctrain`
       );
-      const completed = res.data?.filter(
-        (train) => train.work?.toLowerCase() === selected.toLowerCase()
-      ) || [];
+      const completed =
+        res.data?.filter(
+          (train) => train.work?.toLowerCase() === selected.toLowerCase()
+        ) || [];
       setCompletedDates(completed);
     } catch (err) {
       console.error("Error fetching completed trains:", err);
@@ -38,7 +40,7 @@ const Completedtrain = () => {
     }
   };
 
-    // Fetch all supervisors once
+  // Fetch supervisors once
   const fetchSupervisors = async () => {
     try {
       const res = await axios.get(
@@ -56,22 +58,18 @@ const Completedtrain = () => {
 
   return (
     <Layout title="Manager Completed Trains">
-      <div className="flex min-h-screen bg-gray-100">
+      <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
         <AdminMenu />
-        <main className="flex-1 p-6">
-          <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-green-600">
-              Completed Trains
-            </h1>
-          </div>
+        <main className="flex-1 p-4 md:p-6">
+          <h1 className="text-2xl font-bold text-green-600 mb-4">Completed Trains</h1>
 
-          {/* 🔹 Tabs */}
-          <div className="flex flex-wrap gap-2 mb-6">
+          {/* Tabs */}
+          <div className="flex flex-wrap gap-2 mb-6 overflow-x-auto">
             {options.map((opt) => (
               <button
                 key={opt}
                 onClick={() => setSelected(opt)}
-                className={`px-4 py-2 rounded transition text-sm font-medium ${
+                className={`px-4 py-2 rounded text-sm font-medium flex-shrink-0 transition ${
                   selected === opt
                     ? "bg-blue-600 text-white border border-blue-600"
                     : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
@@ -82,67 +80,93 @@ const Completedtrain = () => {
             ))}
           </div>
 
-          {/* 🔹 Table */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="overflow-x-auto mt-2">
-              <table className="min-w-full bg-white rounded-lg shadow-sm text-sm">
-                <thead className="bg-gray-100 text-gray-700">
-                  <tr>
-                    <th className="px-4 py-2 text-left font-semibold">Train No</th>
-                    <th className="px-4 py-2 text-left font-semibold">Status</th>
-                    <th className="px-4 py-2 text-left font-semibold">Date</th>
-                    <th className="px-4 py-2 text-left font-semibold">Workers Count</th>
-                    <th className="px-4 py-2 text-left font-semibold">Supervisor</th>
-                    <th className="px-4 py-2 text-left font-semibold">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loading ? (
-                    <tr>
-                      <td colSpan="3" className="text-center py-4 text-gray-500">
-                        Loading...
-                      </td>
-                    </tr>
-                  ) : completedDates.length > 0 ? (
-                    completedDates.map((train) => (
-                      
-                      <tr
-                        key={train._id}
-                        className="hover:bg-gray-50 border-t border-gray-200"
-                      >
-                        <td className="px-4 py-2 text-gray-800">{train.trainno}</td>
-                        <td className="px-4 py-2 text-gray-800 capitalize">
-                          {train.status}
-                        </td>
-                        <td className="px-4 py-2 text-gray-800">
-                          {new Date(train.updatedAt).toLocaleDateString("en-IN")}
-                        </td>
-                       
-                              <td className="px-4 py-2 text-gray-700 capitalize">{train.workers?.length || 0}</td>
-                          <td className="border px-4 py-2 text-gray-800">
-  {train.supervisor
-    ? supervisors.find((sup) => sup._id === train.supervisor)?.name || "Unknown"
-    : "Not Assigned"}
-</td>
+          {/* Table */}
+          <div className="bg-white rounded-lg shadow-md p-4 md:p-6 overflow-x-auto">
+            <table className="min-w-full bg-white text-sm md:text-base">
+              <thead className="bg-gray-100 text-gray-700">
+                <tr>
+                  <th className="px-2 md:px-4 py-2 text-left font-semibold">Train No</th>
+                  <th className="px-2 md:px-4 py-2 text-left font-semibold">Status</th>
+                  <th className="px-2 md:px-4 py-2 text-left font-semibold">Date</th>
+                  <th className="px-2 md:px-4 py-2 text-left font-semibold">Workers Count</th>
 
-                              <td>
-                                             <Link to={`/dashboard/manager/traindetail/${train._id}`}>
-                        Details <FaEdit/>
-                                                 </Link>
-                                                    
-                                </td>  
-                      </tr>
-                    ))
+                  {/* Conditionally render columns */}
+                  {selected === "acca" ? (
+                    <>
+                      <th className="px-2 md:px-4 py-2 text-left font-semibold">
+                        Manpwr - Excess/Short
+                      </th>
+                      <th className="px-2 md:px-4 py-2 text-left font-semibold">
+                        Bedsheets - Excess/Short
+                      </th>
+                    </>
                   ) : (
-                    <tr>
-                      <td colSpan="3" className="text-center py-4 text-gray-500">
-                        No completed trains found in {selected.toUpperCase()}.
-                      </td>
-                    </tr>
+                    <th className="px-2 md:px-4 py-2 text-left font-semibold">
+                      Manpwr - Excess/Short
+                    </th>
                   )}
-                </tbody>
-              </table>
-            </div>
+
+                  <th className="px-2 md:px-4 py-2 text-left font-semibold">Supervisor</th>
+                  <th className="px-2 md:px-4 py-2 text-left font-semibold">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan={selected === "acca" ? 8 : 7} className="text-center py-4 text-gray-500">
+                      Loading...
+                    </td>
+                  </tr>
+                ) : completedDates.length > 0 ? (
+                  completedDates.map((train) => {
+                    const manpowerDiff = (train.workers?.length || 0) - (train.reqq || 0);
+                    const bedsheetDiff = (train.suppliedBedsheet || 0) - (train.returned || 0);
+
+                    return (
+                      <tr key={train._id} className="hover:bg-gray-50 border border-gray-200">
+                        <td className="px-2 md:px-4 py-2 border">{train.trainno}</td>
+                        <td className="px-2 md:px-4 py-2 border capitalize">{train.status}</td>
+                        <td className="px-2 md:px-4 py-2 border">{new Date(train.updatedAt).toLocaleDateString("en-IN")}</td>
+                        <td className="px-2 md:px-4 py-2 border">{train.workers?.length || 0}</td>
+
+                        {selected === "acca" ? (
+                          <>
+                            <td className={`px-2 md:px-4 py-2 border ${manpowerDiff < 0 ? "bg-red-500 text-white" : manpowerDiff > 0 ? "bg-green-500 text-white" : ""}`}>
+                              {manpowerDiff}
+                            </td>
+                            <td className={`px-2 md:px-4 py-2 border ${bedsheetDiff > 0 ? "bg-red-500 text-white" : bedsheetDiff < 0 ? "bg-green-500 text-white" : ""}`}>
+                              {bedsheetDiff}
+                            </td>
+                          </>
+                        ) : (
+                          <td className={`px-2 md:px-4 py-2 border ${manpowerDiff < 0 ? "bg-red-500 text-white" : manpowerDiff > 0 ? "bg-green-500 text-white" : ""}`}>
+                            {manpowerDiff}
+                          </td>
+                        )}
+
+                        <td className="px-2 md:px-4 py-2 border">
+                          {train.supervisor
+                            ? supervisors.find((sup) => sup._id === train.supervisor)?.name || "Unknown"
+                            : "Not Assigned"}
+                        </td>
+
+                        <td className="px-2 md:px-4 py-2 border">
+                          <Link to={`/dashboard/manager/traindetail/${train._id}`} className="flex items-center gap-1 text-blue-600 hover:underline">
+                            Details <FaEdit />
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={selected === "acca" ? 8 : 7} className="text-center py-4 text-gray-500">
+                      No completed trains found in {selected.toUpperCase()}.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </main>
       </div>

@@ -105,13 +105,12 @@ const Managerhome = () => {
     }
   };
 
-  // Supervisor ID to Name
   const getSupervisorName = (id) => {
     const sup = supervisors.find((s) => s._id === id);
     return sup ? sup.name : id;
   };
 
-  // Metrics Calculations
+  // Metrics
   const passedBillCount = bills.filter((b) => b.status === "Bill Passed").length;
   const pendingBillCount = bills.filter((b) => b.status !== "Bill Passed").length;
   const totalBillAmount = bills.reduce((acc, b) => acc + (b.billvalue || 0), 0);
@@ -133,7 +132,6 @@ const Managerhome = () => {
       t.status === "completed"
   ).length;
 
-  // Example profit data (replace with API if available)
   const profitData = bills.map((b) => ({
     month: b.month,
     profit: b.netamount || 0,
@@ -141,21 +139,22 @@ const Managerhome = () => {
 
   return (
     <Layout title="Manager Dashboard">
-      <div className="flex min-h-screen bg-gray-100">
+      <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100">
         <AdminMenu />
-        <main className="flex-1 p-6">
+
+        <main className="flex-1 p-4 sm:p-6 overflow-x-hidden">
           {/* Greeting */}
-          <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
             <h1 className="text-2xl font-bold text-red-600">
               Hi, {auth?.user?.name || "Manager"}!
             </h1>
-            <p className="text-gray-600 mt-2 sm:mt-0">
+            <p className="text-gray-600 text-sm sm:text-base">
               Advanced Manager Dashboard
             </p>
           </div>
 
-          {/* Contract Period & Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Metrics */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
             <MetricCard title="Passed Bills" value={passedBillCount} color="green" />
             <MetricCard title="Pending Bills" value={pendingBillCount} color="yellow" />
             <MetricCard title="Net Amount" value={`₹ ${netAmount.toLocaleString()}`} color="green" />
@@ -167,58 +166,66 @@ const Managerhome = () => {
             <MetricCard title="Today Completed Work" value={todayCompletedWork} color="green" />
           </div>
 
-          {/* Search Filter */}
-          <div className="flex items-center mb-4">
-            <FaSearch className="mr-2 text-gray-500" />
-            <input
-              type="text"
-              placeholder="Search by Train No"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="border rounded p-2 flex-1"
+          {/* Search */}
+          <div className="flex flex-col sm:flex-row items-center mb-6 gap-3">
+            <div className="flex items-center w-full sm:w-80">
+              <FaSearch className="mr-2 text-gray-500" />
+              <input
+                type="text"
+                placeholder="Search by Train No or Supervisor"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="border rounded p-2 w-full text-sm sm:text-base"
+              />
+            </div>
+          </div>
+
+          {/* Live Trains */}
+          <div className="mb-8">
+            <AdvancedTable
+              title="Live Trains"
+              headers={["Train No","Work","Supervisor","Total Coaches","Type","Req","Used","Status"]}
+              data={liveTrains.filter(
+                (t) =>
+                  t.trainno?.toLowerCase().includes(search.toLowerCase()) ||
+                  getSupervisorName(t.supervisor)
+                    .toLowerCase()
+                    .includes(search.toLowerCase())
+              )}
+              keys={["trainno","work","supervisor","totalcoach","type","reqq","used","status"]}
+              getSupervisorName={getSupervisorName}
             />
           </div>
 
-          {/* Live Trains Table */}
-          <AdvancedTable
-            title="Live Trains"
-            headers={["Train No","Work","Supervisor","Total Coaches","Type","Req","Used","Status"]}
-            data={liveTrains.filter(
-              (t) =>
-                t.trainno.includes(search) ||
-                getSupervisorName(t.supervisor)
-                  .toLowerCase()
-                  .includes(search.toLowerCase())
-            )}
-            keys={["trainno","work","supervisor","totalcoach","type","reqq","used","status"]}
-            getSupervisorName={getSupervisorName}
-          />
+          {/* Workers */}
+          <div className="mb-8">
+            <AdvancedTable
+              title="Workers"
+              headers={["Name","Phone","Emp ID","Designation","Wage","Bank","IFSC","Status"]}
+              data={allWorkers.filter((w) =>
+                w.name.toLowerCase().includes(search.toLowerCase())
+              )}
+              keys={["name","phone","empid","designation","wage","bank","ifsccode","status"]}
+            />
+          </div>
 
-          {/* Workers Table */}
-          <AdvancedTable
-            title="Workers"
-            headers={["Name","Phone","Emp ID","Designation","Wage","Bank","IFSC","Status"]}
-            data={allWorkers.filter((w) =>
-              w.name.toLowerCase().includes(search.toLowerCase())
-            )}
-            keys={["name","phone","empid","designation","wage","bank","ifsccode","status"]}
-          />
+          {/* Bills */}
+          <div className="mb-8">
+            <AdvancedTable
+              title="Bills"
+              headers={["Month","Contract Period","Status","Bill Value","Penalty","Net Amount"]}
+              data={bills.filter((b) => b.month.includes(search))}
+              keys={["month","contractperiod","status","billvalue","penalty","netamount"]}
+              isCurrency
+            />
+          </div>
 
-          {/* Bills Table */}
-          <AdvancedTable
-            title="Bills"
-            headers={["Month","Contract Period","Status","Bill Value","Penalty","Net Amount"]}
-            data={bills.filter((b) => b.month.includes(search))}
-            keys={["month","contractperiod","status","billvalue","penalty","netamount"]}
-            isCurrency
-          />
-
-          {/* Profit Chart */}
-          <div className="bg-white rounded shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-700 mb-4">
+          {/* Chart */}
+          <div className="bg-white rounded shadow p-4 sm:p-6">
+            <h2 className="text-lg font-semibold text-gray-700 mb-4 text-center sm:text-left">
               Monthly Profit Overview
             </h2>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <LineChart data={profitData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
@@ -239,7 +246,7 @@ const Managerhome = () => {
   );
 };
 
-// Metric Card Component
+// Metric Card
 const MetricCard = ({ title, value, color }) => {
   const colors = {
     green: "text-green-700 bg-green-100",
@@ -249,50 +256,48 @@ const MetricCard = ({ title, value, color }) => {
     gray: "text-gray-700 bg-gray-100",
   };
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md text-center">
-      <h5 className="text-gray-500 font-medium">{title}</h5>
-      <p className={`text-xl font-bold ${colors[color] || "text-gray-800"}`}>
+    <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md text-center">
+      <h5 className="text-gray-500 text-sm sm:text-base font-medium">{title}</h5>
+      <p className={`text-lg sm:text-xl font-bold ${colors[color] || "text-gray-800"}`}>
         {value}
       </p>
     </div>
   );
 };
 
-// Advanced Table Component
+// Table Component
 const AdvancedTable = ({ title, headers, data, keys, isCurrency, getSupervisorName }) => (
-  <div className="bg-white rounded shadow p-6 mb-8">
+  <div className="bg-white rounded shadow p-4 sm:p-6 overflow-x-auto">
     <h2 className="text-lg font-semibold text-gray-700 mb-4">{title}</h2>
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            {headers.map((h) => (
-              <th
-                key={h}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                {h}
-              </th>
+    <table className="min-w-full divide-y divide-gray-200 text-sm sm:text-base">
+      <thead className="bg-gray-50">
+        <tr>
+          {headers.map((h) => (
+            <th
+              key={h}
+              className="px-3 sm:px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider"
+            >
+              {h}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody className="bg-white divide-y divide-gray-200">
+        {data.map((item) => (
+          <tr key={item._id}>
+            {keys.map((k) => (
+              <td key={k} className="px-3 sm:px-6 py-3 whitespace-nowrap">
+                {k === "supervisor" && getSupervisorName
+                  ? getSupervisorName(item[k])
+                  : isCurrency && typeof item[k] === "number"
+                  ? `₹ ${item[k].toLocaleString()}`
+                  : item[k] || "—"}
+              </td>
             ))}
           </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {data.map((item) => (
-            <tr key={item._id}>
-              {keys.map((k) => (
-                <td key={k} className="px-6 py-4">
-                  {k === "supervisor" && getSupervisorName
-                    ? getSupervisorName(item[k])
-                    : isCurrency && typeof item[k] === "number"
-                    ? `₹ ${item[k].toLocaleString()}`
-                    : item[k] || "—"}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+        ))}
+      </tbody>
+    </table>
   </div>
 );
 

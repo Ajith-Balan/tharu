@@ -66,7 +66,7 @@ const Connect = () => {
 
   return (
     <Layout title="Chat - Manager">
-      <div className="flex flex-col md:flex-row gap-4 p-4 h-[90vh]">
+      <div className="flex flex-col md:flex-row gap-4 p-4 ">
         {/* Left Menu */}
         <div className="w-full md:w-1/4">
           <AdminMenu />
@@ -115,14 +115,14 @@ const Connect = () => {
               e.preventDefault();
               addChat();
             }}
-            className="mt-4 flex gap-2"
+            className="mt-4 sticky bottom-0 flex gap-2"
           >
             <input
               type="text"
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Type a message..."
-              className="flex-1 p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="flex-1 p-2 rounded-lg  border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
             />
             <button
               type="submit"

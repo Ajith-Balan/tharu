@@ -24,13 +24,13 @@ import Site from './components/Site';
 import LiveTrain from './pages/manager/LiveTrain';
 import Addsupervisor from './pages/manager/Addsupervisor';
 import Addworkers from './pages/manager/Addworkers';
-import CompletedTrain from './pages/user/Completedtrain';
+import CompletedTrain from './pages/user/CompletedTrain';
 
 import TrainDetails from './pages/user/TrainDetails';
 import StaffDetails from './pages/manager/StaffDetails';
 import Attendance from './pages/manager/Attendance';
 import TrainDetail from './pages/manager/TrainDetail';
-import Completedtrain from './pages/manager/CompletedTrain';
+import Completedtrain from './pages/manager/Completedtrain';
 import Editstaff from './pages/manager/Editstaff';
 import Billdetails from './pages/manager/Billdetails';
 import Addbill from './pages/manager/Addbill';

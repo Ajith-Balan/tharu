@@ -33,6 +33,9 @@ workers: {
  
       suppliedBedsheet:{
     type:String
+  }, 
+  returned:{
+    type:String
   },
  
     status: {

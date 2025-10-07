@@ -14,7 +14,7 @@ dotenv.config()
 
 export const registerController = async (req,res)=>{
 try {
-    const { name, phone,aadhar,empid,wage,acnumber,ifsccode,bank,branch,uanno,esino,designation } = req.body; 
+    const { name,work, phone,aadhar,empid,wage,acnumber,ifsccode,bank,branch,uanno,esino,designation } = req.body; 
     if (!name) {
         return res.send({ error: "Name is Required" });
       }
@@ -27,7 +27,17 @@ try {
       //   return res.send({ message: "type is Required" });
       // }
    
+     // Generate new usercode
+       const prefix = "EMP";
+       const latestUser = await userModel.findOne().sort({ createdAt: -1 });
    
+       let newUserCode;
+       if (latestUser?.empid) {
+         const lastCodeNum = parseInt(latestUser.empid.replace(prefix, "")) || 0;
+         newUserCode = `${prefix}${lastCodeNum + 1}`;
+       } else {
+         newUserCode = `${prefix}0`; // starting code
+       }
 
     //check user
     const exisitingUser = await workersModel.findOne({ aadhar });
@@ -42,9 +52,10 @@ try {
     //save
     const user = await new workersModel({
        name,
+       work,
         phone,
         aadhar,
-        empid,
+        empid: newUserCode,
         wage,
         acnumber,
         ifsccode,
@@ -96,7 +107,7 @@ export const bulkUploadController = async (req, res) => {
     // Insert workers into DB (ignore duplicates by aadhar)
     let inserted = [];
     for (const row of jsonData) {
-      const { name, phone, aadhar, empid, wage, acnumber, ifsccode, bank, branch, uanno, esino, designation } = row;
+      const { name,work, phone, aadhar, empid, wage, acnumber, ifsccode, bank, branch, uanno, esino, designation } = row;
 
       if (!aadhar) continue; // skip if no aadhar
 
@@ -104,6 +115,7 @@ export const bulkUploadController = async (req, res) => {
       if (!exists) {
         const worker = new workersModel({
           name,
+          work,
           phone,
           aadhar,
           empid,

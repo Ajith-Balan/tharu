@@ -13,7 +13,7 @@ const Layout = ({
   author = "ajith-balan"
 }) => {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col ">
       <Helmet>
         <meta charSet="utf-8" />
         <meta name="description" content={description} />
