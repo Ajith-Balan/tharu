@@ -3,45 +3,29 @@ import Layout from "../../components/layout/Layout";
 import { useAuth } from "../../context/Auth";
 import axios from "axios";
 import AdminMenu from "../../components/layout/AdminMenu.jsx";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
-import { FaSearch } from "react-icons/fa";
+
 import moment from "moment";
 
 const Managerhome = () => {
   const [auth] = useAuth();
-  const [trainStats, setTrainStats] = useState({});
   const [liveTrains, setLiveTrains] = useState([]);
-  const [allWorkers, setAllWorkers] = useState([]);
   const [bills, setBills] = useState([]);
-  const [supervisors, setSupervisors] = useState([]);
   const [completedWork, setCompletedWork] = useState([]);
-  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (auth?.user) {
-      fetchTrainStats();
       fetchLiveTrains();
-      fetchWorkers();
       fetchBills();
-      fetchSupervisors();
       fetchCompletedWork();
     }
   }, [auth?.user]);
 
-  const fetchTrainStats = async () => {
+  const fetchCompletedWork = async () => {
     try {
       const res = await axios.get(
         `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/get-completedmcctrain`
       );
-      setTrainStats(res.data || {});
+      setCompletedWork(res.data || {});
     } catch (err) {
       console.error("Error fetching train stats:", err);
     }
@@ -83,32 +67,11 @@ const Managerhome = () => {
     }
   };
 
-  const fetchSupervisors = async () => {
-    try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_APP_BACKEND}/api/v1/work/get-workers`
-      );
-      setSupervisors(res.data || []);
-    } catch (err) {
-      console.error("Error fetching supervisors:", err);
-    }
-  };
 
-  const fetchCompletedWork = async () => {
-    try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/get-completed`
-      );
-      setCompletedWork(res.data || []);
-    } catch (err) {
-      console.error("Error fetching completed work:", err);
-    }
-  };
 
-  const getSupervisorName = (id) => {
-    const sup = supervisors.find((s) => s._id === id);
-    return sup ? sup.name : id;
-  };
+
+
+
 
   // Metrics
   const passedBillCount = bills.filter((b) => b.status === "Bill Passed").length;
@@ -132,10 +95,7 @@ const Managerhome = () => {
       t.status === "completed"
   ).length;
 
-  const profitData = bills.map((b) => ({
-    month: b.month,
-    profit: b.netamount || 0,
-  }));
+
 
   return (
     <Layout title="Manager Dashboard">
@@ -146,7 +106,7 @@ const Managerhome = () => {
           {/* Greeting */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
             <h1 className="text-2xl font-bold text-red-600">
-              Hi, {auth?.user?.name || "Manager"}!
+             {auth?.user?.name || "Manager"}!
             </h1>
             <p className="text-gray-600 text-sm sm:text-base">
               Advanced Manager Dashboard
@@ -167,79 +127,15 @@ const Managerhome = () => {
           </div>
 
           {/* Search */}
-          <div className="flex flex-col sm:flex-row items-center mb-6 gap-3">
-            <div className="flex items-center w-full sm:w-80">
-              <FaSearch className="mr-2 text-gray-500" />
-              <input
-                type="text"
-                placeholder="Search by Train No or Supervisor"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="border rounded p-2 w-full text-sm sm:text-base"
-              />
-            </div>
-          </div>
+       
 
-          {/* Live Trains */}
-          <div className="mb-8">
-            <AdvancedTable
-              title="Live Trains"
-              headers={["Train No","Work","Supervisor","Total Coaches","Type","Req","Used","Status"]}
-              data={liveTrains.filter(
-                (t) =>
-                  t.trainno?.toLowerCase().includes(search.toLowerCase()) ||
-                  getSupervisorName(t.supervisor)
-                    .toLowerCase()
-                    .includes(search.toLowerCase())
-              )}
-              keys={["trainno","work","supervisor","totalcoach","type","reqq","used","status"]}
-              getSupervisorName={getSupervisorName}
-            />
-          </div>
-
-          {/* Workers */}
-          <div className="mb-8">
-            <AdvancedTable
-              title="Workers"
-              headers={["Name","Phone","Emp ID","Designation","Wage","Bank","IFSC","Status"]}
-              data={allWorkers.filter((w) =>
-                w.name.toLowerCase().includes(search.toLowerCase())
-              )}
-              keys={["name","phone","empid","designation","wage","bank","ifsccode","status"]}
-            />
-          </div>
+        
 
           {/* Bills */}
-          <div className="mb-8">
-            <AdvancedTable
-              title="Bills"
-              headers={["Month","Contract Period","Status","Bill Value","Penalty","Net Amount"]}
-              data={bills.filter((b) => b.month.includes(search))}
-              keys={["month","contractperiod","status","billvalue","penalty","netamount"]}
-              isCurrency
-            />
-          </div>
+        
 
           {/* Chart */}
-          <div className="bg-white rounded shadow p-4 sm:p-6">
-            <h2 className="text-lg font-semibold text-gray-700 mb-4 text-center sm:text-left">
-              Monthly Profit Overview
-            </h2>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={profitData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="profit"
-                  stroke="#10b981"
-                  strokeWidth={3}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+         
         </main>
       </div>
     </Layout>
@@ -265,40 +161,7 @@ const MetricCard = ({ title, value, color }) => {
   );
 };
 
-// Table Component
-const AdvancedTable = ({ title, headers, data, keys, isCurrency, getSupervisorName }) => (
-  <div className="bg-white rounded shadow p-4 sm:p-6 overflow-x-auto">
-    <h2 className="text-lg font-semibold text-gray-700 mb-4">{title}</h2>
-    <table className="min-w-full divide-y divide-gray-200 text-sm sm:text-base">
-      <thead className="bg-gray-50">
-        <tr>
-          {headers.map((h) => (
-            <th
-              key={h}
-              className="px-3 sm:px-6 py-3 text-left text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider"
-            >
-              {h}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody className="bg-white divide-y divide-gray-200">
-        {data.map((item) => (
-          <tr key={item._id}>
-            {keys.map((k) => (
-              <td key={k} className="px-3 sm:px-6 py-3 whitespace-nowrap">
-                {k === "supervisor" && getSupervisorName
-                  ? getSupervisorName(item[k])
-                  : isCurrency && typeof item[k] === "number"
-                  ? `₹ ${item[k].toLocaleString()}`
-                  : item[k] || "—"}
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-);
+
+
 
 export default Managerhome;

@@ -43,6 +43,7 @@ function App() {
         <ToastContainer />
         <Routes>
         <Route path='/' element={<Site/>} />
+        <Route path='/home' element={<Site/>} />
         {/* <Route path='/search' element={<SearchResult />} /> */}
 
 

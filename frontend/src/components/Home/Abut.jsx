@@ -3,6 +3,7 @@ import { IoMdTime } from "react-icons/io";
 import { FaUsers } from "react-icons/fa6";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Layout from "../layout/Layout";
 
 const Abut = () => {
   const satisfactionPercentage = 98;
@@ -12,6 +13,8 @@ const Abut = () => {
   }, []);
 
   return (
+    <Layout>
+
     <div className="h-full mt-[12vh]">
       <div className="container mx-auto p-7 relative">
         <h1 className="text-4xl font-bold text-teal-500 mb-12 font-space-grotesk">About us</h1>
@@ -72,6 +75,8 @@ const Abut = () => {
         </div>
       </div>
     </div>
+        </Layout>
+
   );
 };
 

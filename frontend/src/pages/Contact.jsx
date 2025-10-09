@@ -7,7 +7,6 @@ const contactImage = 'https://cdn.pixabay.com/photo/2022/01/12/18/51/contact-us-
 
 const Contact = () => {
   return (
-    <div className="bg-gray-100 min-h-screen flex items-center justify-center">
       <Layout title={'Contact Us'}>
         <div className="max-w-md mx-auto bg-white shadow-md rounded-lg p-6">
           <h2 className="text-3xl font-bold mb-4 text-center text-red-600">Contact Us</h2>
@@ -33,7 +32,6 @@ const Contact = () => {
           </div>
         </div>
       </Layout>
-    </div>
   );
 }
 

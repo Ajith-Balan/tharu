@@ -104,12 +104,12 @@ const Login = () => {
                 <Link className="text-blue-500 underline" to={"/forget"}>
                   Forgot Password
                 </Link>
-                <p>
+                {/* <p>
                   New user?{" "}
                   <Link className="text-blue-600 j underline" to={"/register"}>
                     Sign up
                   </Link>
-                </p>
+                </p> */}
               </div>
             </form>
           </div>

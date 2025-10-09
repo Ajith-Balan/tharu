@@ -79,8 +79,13 @@ const ManagerMenu = () => {
     <>
       {/* 🔹 Mobile Menu Button */}
       <div className="md:hidden flex justify-between items-center bg-white shadow p-4">
-        <h2 className="text-xl font-bold text-red-600">Quick Links</h2>
-        <button
+  <Link to="/" className="flex items-center space-x-2">
+            <img
+              className="h-10 sm:h-12 w-auto rounded-md"
+              src="https://www.tharuandsons.in/wp-content/uploads/2023/04/logo-tagline-2.jpg"
+              alt="Tharu & Sons Logo"
+            />
+          </Link>        <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="text-2xl text-red-600 focus:outline-none"
         >
