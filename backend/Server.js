@@ -6,7 +6,7 @@ import mcctrainRoutes from './router/mcctrainRoutes.js'
 import workersRoutes from './router/workersRoutes.js'
 import cors from 'cors'
 import chat from './router/chat.js'
-
+import path from 'path';
 dotenv.config()
 connection()
 const app =express()
