@@ -14,7 +14,7 @@ dotenv.config()
 
 export const registerController = async (req,res)=>{
 try {
-    const { name,work, phone,aadhar,empid,wage,acnumber,ifsccode,bank,branch,uanno,esino,designation } = req.body; 
+    const { name,work, phone,aadhar,wage,acnumber,ifsccode,bank,branch,uanno,esino,designation } = req.body; 
     if (!name) {
         return res.send({ error: "Name is Required" });
       }
@@ -29,7 +29,7 @@ try {
    
      // Generate new usercode
        const prefix = "EMP";
-       const latestUser = await userModel.findOne().sort({ createdAt: -1 });
+       const latestUser = await workersModel.findOne().sort({ createdAt: -1 });
    
        let newUserCode;
        if (latestUser?.empid) {

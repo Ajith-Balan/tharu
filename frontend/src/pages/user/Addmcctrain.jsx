@@ -67,11 +67,13 @@ const Addmcctrain = () => {
     setTrainDetails({ ...trainDetails, workers: updated.map((w) => w._id) });
   };
 
-  const filteredWorkers = allWorkers.filter(
-    (w) =>
-      w.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      !selectedWorkers.some((sel) => sel._id === w._id)
-  );
+const filteredWorkers = allWorkers.filter(
+  (w) =>
+    w.work?.toLowerCase() === selectedCategory.toLowerCase() && // ✅ match active tab
+    w.name.toLowerCase().includes(searchTerm.toLowerCase()) && // ✅ match search term
+    !selectedWorkers.some((sel) => sel._id === w._id) // ✅ exclude already selected
+);
+
 
   const handleTrainChange = (e) => {
     const { name, value } = e.target;

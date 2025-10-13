@@ -18,9 +18,12 @@ const StaffDetails = () => {
       const res = await axios.get(
         `${import.meta.env.VITE_APP_BACKEND}/api/v1/worker/get-workers`
       );
-      const workers = (res.data || []).sort(
-        (a, b) => new Date(b.month + "-01") - new Date(a.month + "-01")
-      );
+      const workers = (res.data || []) .sort((a, b) => {
+        // Prefer createdAt if available, fallback to _id
+        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(parseInt(a._id.substring(0, 8), 16) * 1000);
+        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(parseInt(b._id.substring(0, 8), 16) * 1000);
+        return dateB - dateA; // Newest first
+      });
       setAllWorkers(workers || []);
     } catch (err) {
       console.error("Error fetching workers:", err);

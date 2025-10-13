@@ -15,7 +15,6 @@ const Addworkers = () => {
     name: '',
     phone: '',
     aadhar: '',
-    empid: '',
     category: '',
     wage: '',
     bank: '',
@@ -60,8 +59,8 @@ const Addworkers = () => {
   };
 
   const validateForm = () => {
-    const { name, phone, empid, aadhar } = formData;
-    if (!name || !aadhar || !phone || !empid) {
+    const { name, phone, aadhar } = formData;
+    if (!name || !aadhar || !phone ) {
       toast.error('Please fill all required fields');
       return false;
     }
