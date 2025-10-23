@@ -9,14 +9,15 @@ import UserMenu from "../../components/layout/UserMenu";
 const Dashboard = () => {
   const [auth] = useAuth();
   const [liveTrains, setLiveTrains] = useState([]);
-  const [activeTab, setActiveTab] = useState(""); 
+  const [activeTab, setActiveTab] = useState("");
   const [loading, setLoading] = useState(false);
-  const [editableData, setEditableData] = useState({ status: "completed" });
+  const [supervisors, setSupervisors] = useState([]);
 
   const [showPopup, setShowPopup] = useState(false);
   const [selectedTrain, setSelectedTrain] = useState(null);
   const [returned, setReturned] = useState("");
 
+  // Define all work tabs
   const TABS = [
     { id: "mcc", label: "MCC" },
     { id: "acca", label: "ACCA" },
@@ -26,13 +27,16 @@ const Dashboard = () => {
     { id: "pit & yard", label: "Pit & Yard" },
   ];
 
+  // Get user's assigned work
   const userWork = auth?.user?.work?.toLowerCase() || "";
 
+  // If user has specific work assigned, show only that tab
   const filteredTabs =
     userWork && TABS.some((tab) => tab.id === userWork)
       ? TABS.filter((tab) => tab.id === userWork)
       : TABS;
 
+  // Set default active tab
   useEffect(() => {
     if (userWork && filteredTabs.length > 0) {
       setActiveTab(userWork);
@@ -41,6 +45,7 @@ const Dashboard = () => {
     }
   }, [userWork]);
 
+  // Fetch live trains
   const fetchLiveTrains = async () => {
     try {
       setLoading(true);
@@ -55,31 +60,28 @@ const Dashboard = () => {
     }
   };
 
-  useEffect(() => {
-    fetchLiveTrains();
-  }, []);
-
-  const handleMarkCompleted = (train) => {
-    if (activeTab === "acca") {
-      setSelectedTrain(train);
-      setShowPopup(true);
-    } else {
-      updateTrain(train._id, { status: "completed" });
+  // Fetch all supervisors
+  const fetchSupervisors = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_BACKEND}/api/v1/auth/getsupervisor`
+      );
+      setSupervisors(res.data.supervisor || []);
+    } catch (error) {
+      console.error("Error fetching supervisors:", error);
     }
   };
 
-  const handlePopupSubmit = async () => {
-    if (!selectedTrain) return;
-    await updateTrain(selectedTrain._id, {
-      status: "completed",
-      returned: Number(returned) || 0,
-    });
-    setShowPopup(false);
-    setSelectedTrain(null);
-    setReturned("");
-  };
+  // Fetch data on mount
+  useEffect(() => {
+    fetchLiveTrains();
+    fetchSupervisors();
+  }, []);
 
+  // Update train status
   const updateTrain = async (id, data) => {
+            if (!window.confirm("Are you sure you want to Mark this Duty Completed?")) return;
+
     try {
       await axios.put(
         `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/update-mcctrain/${id}`,
@@ -91,6 +93,31 @@ const Dashboard = () => {
     }
   };
 
+  // Mark as completed handler
+  const handleMarkCompleted = (train) => {
+    if (activeTab === "acca") {
+ if (!window.confirm("Are you sure you want to Mark this Duty Completed?")) return;
+
+      setSelectedTrain(train);
+      setShowPopup(true);
+    } else {
+      updateTrain(train._id, { status: "completed" ,reqq:train.workers?.length});
+    }
+  };
+
+  // Handle popup submit (for ACCA)
+  const handlePopupSubmit = async () => {
+    if (!selectedTrain) return;
+    await updateTrain(selectedTrain._id, {
+      status: "completed",
+      returned: Number(returned) || 0,
+    });
+    setShowPopup(false);
+    setSelectedTrain(null);
+    setReturned("");
+  };
+
+  // Format date & time
   const formatDateTime = (date) => {
     if (!date) return "";
     const d = new Date(date);
@@ -103,6 +130,7 @@ const Dashboard = () => {
     });
   };
 
+  // Render train table
   const renderLiveTrainTable = () => {
     const filteredTrains = liveTrains.filter(
       (train) => train.work?.toLowerCase() === activeTab
@@ -111,50 +139,59 @@ const Dashboard = () => {
     if (filteredTrains.length === 0) {
       return (
         <tr>
-          <td colSpan="5" className="text-center py-4 text-gray-500">
+          <td colSpan="6" className="text-center py-4 text-gray-500">
             No live trains available for {activeTab.toUpperCase()}.
           </td>
         </tr>
       );
     }
 
-    return filteredTrains.map((train) => (
-      <tr
-        key={train._id}
-        className="hover:bg-gray-50 odd:bg-white even:bg-gray-50"
-      >
-        <td className="border border-gray-300 px-2 sm:px-4 py-2 text-gray-700 text-sm sm:text-base">
-          {train.trainno}
-        </td>
-        <td className="border border-gray-300 px-2 sm:px-4 py-2 text-gray-700 capitalize text-sm sm:text-base">
-          {train.status}
-        </td>
-        <td className="border border-gray-300 px-2 sm:px-4 py-2 text-gray-700 text-sm sm:text-base">
-          {formatDateTime(train.createdAt)}
-        </td>
-        <td className="border border-gray-300 px-2 sm:px-4 py-2 text-gray-700 text-sm sm:text-base">
-          {train.workers?.length || 0}
-        </td>
-        <td className="border border-gray-300 px-2 sm:px-4 py-2">
-          <div className="flex flex-wrap gap-2">
-            {train.status !== "completed" && (
-              <button
-                onClick={() => handleMarkCompleted(train)}
-                className="text-xs sm:text-sm bg-green-500 text-white px-2 sm:px-3 py-1 rounded hover:bg-green-600"
+    return filteredTrains.map((train) => {
+      const supervisorData = supervisors.find(
+        (sup) => sup._id === train.supervisor
+      );
+
+      return (
+        <tr
+          key={train._id}
+          className="hover:bg-gray-50 odd:bg-white even:bg-gray-50"
+        >
+          <td className="border border-gray-300 px-2 sm:px-4 py-2 text-gray-700 text-sm sm:text-base">
+            {train.trainno}
+          </td>
+          <td className="border border-gray-300 px-2 sm:px-4 py-2 text-gray-700 capitalize text-sm sm:text-base">
+            {train.status}
+          </td>
+          <td className="border border-gray-300 px-2 sm:px-4 py-2 text-gray-700 text-sm sm:text-base">
+            {formatDateTime(train.createdAt)}
+          </td>
+          <td className="border border-gray-300 px-2 sm:px-4 py-2 text-gray-700 text-sm sm:text-base">
+            {train.workers?.length || 0}
+          </td>
+          <td className="border border-gray-300 px-2 sm:px-4 py-2 text-gray-700 text-sm sm:text-base">
+            {supervisorData ? supervisorData.name : "N/A"}
+          </td>
+          <td className="border border-gray-300 px-2 sm:px-4 py-2">
+            <div className="flex flex-wrap gap-2">
+              {train.status !== "completed" && (
+                <button
+                  onClick={() => handleMarkCompleted(train)}
+                  className="text-xs sm:text-sm bg-green-500 text-white px-2 sm:px-3 py-1 rounded hover:bg-green-600"
+                >
+                  Mark as Completed
+                </button>
+              )}
+              <Link
+                to={`/dashboard/user/traindetails/${train._id}`}
+                className="text-xs sm:text-sm bg-yellow-500 text-white px-2 sm:px-3 py-1 rounded hover:bg-yellow-600 flex items-center gap-1"
               >
-                Mark as Completed
-              </button>
-            )}
-            <Link
-              to={`/dashboard/user/traindetails/${train._id}`}
-              className="text-xs sm:text-sm bg-yellow-500 text-white px-2 sm:px-3 py-1 rounded hover:bg-yellow-600 flex items-center gap-1"
-            >
-              <FaEdit />
-            </Link>
-          </div>
-        </td>
-      </tr>
-    ));
+                <FaEdit />
+              </Link>
+            </div>
+          </td>
+        </tr>
+      );
+    });
   };
 
   return (
@@ -186,19 +223,22 @@ const Dashboard = () => {
             <table className="min-w-full border border-gray-300 table-auto text-sm sm:text-base">
               <thead className="bg-gray-100 text-gray-700 uppercase text-xs sm:text-sm tracking-wider sticky top-0 z-10">
                 <tr>
-                  <th className="border border-gray-300 px-2 sm:px-4 py-2 text-left w-1/5">
+                  <th className="border border-gray-300 px-2 sm:px-4 py-2 text-left">
                     Train No
                   </th>
-                  <th className="border border-gray-300 px-2 sm:px-4 py-2 text-left w-1/5">
+                  <th className="border border-gray-300 px-2 sm:px-4 py-2 text-left">
                     Status
                   </th>
-                  <th className="border border-gray-300 px-2 sm:px-4 py-2 text-left w-1/5">
+                  <th className="border border-gray-300 px-2 sm:px-4 py-2 text-left">
                     Created At
                   </th>
-                  <th className="border border-gray-300 px-2 sm:px-4 py-2 text-left w-1/5">
+                  <th className="border border-gray-300 px-2 sm:px-4 py-2 text-left">
                     Workers
                   </th>
-                  <th className="border border-gray-300 px-2 sm:px-4 py-2 text-left w-1/5">
+                  <th className="border border-gray-300 px-2 sm:px-4 py-2 text-left">
+                    Supervisor
+                  </th>
+                  <th className="border border-gray-300 px-2 sm:px-4 py-2 text-left">
                     Actions
                   </th>
                 </tr>
@@ -206,7 +246,7 @@ const Dashboard = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td colSpan="5" className="text-center py-4 text-gray-500">
+                    <td colSpan="6" className="text-center py-4 text-gray-500">
                       Loading...
                     </td>
                   </tr>

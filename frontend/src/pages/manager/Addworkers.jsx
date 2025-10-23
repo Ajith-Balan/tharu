@@ -80,6 +80,8 @@ const Addworkers = () => {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
+   if (!window.confirm("Are you sure you want to Add this Worker?")) return;
+
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_APP_BACKEND}/api/v1/worker/create-worker`,

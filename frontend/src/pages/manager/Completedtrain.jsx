@@ -94,10 +94,10 @@ const Completedtrain = () => {
                   {selected === "acca" ? (
                     <>
                       <th className="px-2 md:px-4 py-2 text-left font-semibold">
-                        Manpwr - Excess/Short
+                        Manpwr -  <span className="text-green-800 ">Excess</span> /<span className="text-red-800">Short</span>
                       </th>
                       <th className="px-2 md:px-4 py-2 text-left font-semibold">
-                        Bedsheets - Excess/Short
+                        Bedsheets - <span className="text-green-800 ">Excess</span> /<span className="text-red-800">Short</span>
                       </th>
                     </>
                   ) : (
@@ -132,15 +132,15 @@ const Completedtrain = () => {
                         {selected === "acca" ? (
                           <>
                             <td className={`px-2 md:px-4 py-2 border ${manpowerDiff < 0 ? "bg-red-500 text-white" : manpowerDiff > 0 ? "bg-green-500 text-white" : ""}`}>
-                              {manpowerDiff}
+                              {Math.abs(Math.round(manpowerDiff)) || 0}
                             </td>
                             <td className={`px-2 md:px-4 py-2 border ${bedsheetDiff > 0 ? "bg-red-500 text-white" : bedsheetDiff < 0 ? "bg-green-500 text-white" : ""}`}>
-                              {bedsheetDiff}
+                             {Math.abs(Math.round(bedsheetDiff)) || 0}
                             </td>
                           </>
                         ) : (
                           <td className={`px-2 md:px-4 py-2 border ${manpowerDiff < 0 ? "bg-red-500 text-white" : manpowerDiff > 0 ? "bg-green-500 text-white" : ""}`}>
-                            {manpowerDiff}
+                               {Math.abs(Math.round(manpowerDiff)) || 0}
                           </td>
                         )}
 

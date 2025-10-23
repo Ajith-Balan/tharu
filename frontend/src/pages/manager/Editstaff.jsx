@@ -98,6 +98,8 @@ const Editstaff = () => {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
+            if (!window.confirm("Are you sure you want to Update this Worker?")) return;
+
     try {
       await axios.put(`${import.meta.env.VITE_APP_BACKEND}/api/v1/worker/update-worker/${id}`, formData);
       toast.success('Worker updated successfully');

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../context/Auth";
 import axios from "axios";
 import AdminMenu from "../../components/layout/AdminMenu";
-import { FaEdit, FaSave, FaTrash } from "react-icons/fa";
+import { FaEdit, FaSave, FaTrash ,FaTimes } from "react-icons/fa";
 import { toast } from "react-toastify";
 
 const Billdetails = () => {
@@ -69,7 +69,14 @@ const Billdetails = () => {
     setEditedData({ ...editedData, [e.target.name]: e.target.value });
   };
 
+  const handleCancelEdit = () => {
+  setEditId(null); // exits edit mode
+};
+
+
   const handleSaveClick = async (id) => {
+        if (!window.confirm("Are you sure you want to Update this bill?")) return;
+
     try {
       await axios.put(
         `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/update-bill/${id}`,
@@ -265,29 +272,46 @@ const Billdetails = () => {
                           )}
                         </td>
 
-                        <td className="px-3 py-2 border text-center">
-                          {editId === bill._id ? (
-                            <button
-                              onClick={() => handleSaveClick(bill._id)}
-                              className="text-green-600 hover:text-green-800 mx-1"
-                            >
-                              <FaSave />
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => handleEditClick(bill)}
-                              className="text-blue-600 hover:text-blue-800 mx-1"
-                            >
-                              <FaEdit />
-                            </button>
-                          )}
-                          <button
-                            onClick={() => handleDelete(bill._id)}
-                            className="text-red-600 hover:text-red-800 mx-1"
-                          >
-                            <FaTrash />
-                          </button>
-                        </td>
+
+<td className="px-3 py-2 border text-center">
+  <div className="flex justify-center items-center gap-3">
+    {editId === bill._id ? (
+      <>
+        <button
+          onClick={() => handleSaveClick(bill._id)}
+          className="text-green-600 hover:text-green-800 transition-colors"
+          title="Save"
+        >
+          <FaSave size={18} />
+        </button>
+        <button
+          onClick={handleCancelEdit}
+          className="text-gray-500 hover:text-gray-700 transition-colors"
+          title="Cancel"
+        >
+          <FaTimes size={18} />
+        </button>
+      </>
+    ) : (
+      <button
+        onClick={() => handleEditClick(bill)}
+        className="text-blue-600 hover:text-blue-800 transition-colors"
+        title="Edit"
+      >
+        <FaEdit size={18} />
+      </button>
+    )}
+
+    <button
+      onClick={() => handleDelete(bill._id)}
+      className="text-red-600 hover:text-red-800 transition-colors"
+      title="Delete"
+    >
+      <FaTrash size={18} />
+    </button>
+  </div>
+</td>
+
                       </tr>
                     ))}
                   </tbody>
@@ -308,14 +332,27 @@ const Billdetails = () => {
                           year: "numeric",
                         })}
                       </span>
-                      <div>
+                      <div className="p-4">
                         {editId === bill._id ? (
+                          <div>
+
+                         
                           <button
                             onClick={() => handleSaveClick(bill._id)}
                             className="text-green-600 mx-1"
                           >
                             <FaSave />
                           </button>
+
+                          <button
+        onClick={handleCancelEdit}
+        className="text-gray-500 mx-1"
+      >
+        <FaTimes /> {/* cancel icon */}
+      </button>
+
+       </div>
+                          
                         ) : (
                           <button
                             onClick={() => handleEditClick(bill)}

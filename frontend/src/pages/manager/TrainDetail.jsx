@@ -108,6 +108,9 @@ const TrainDetail = () => {
       return;
     }
 
+  if (!window.confirm("Are you sure you want to Update this Duty?")) return;
+
+
     try {
       setLoading(true);
       const updateData = { ...editableData };

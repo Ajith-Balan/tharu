@@ -24,7 +24,7 @@ const Forget = () => {
 
     setLoading(true);
     try {
-      const { data } = await axios.post(`${import.meta.env.VITE_APP_BACKEND}/api/v1/auth/forgetpswd`, { email });
+      const { data } = await axios.post(`${import.meta.env.VITE_APP_BACKEND}/api/v1/auth/forgetpswd`, {email} );
       setMessage(data.message);
       setError('');
       setOtpSent(true);

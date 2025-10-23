@@ -56,6 +56,8 @@ const LiveTrain = () => {
   }, []);
 
   const handleMarkCompleted = async (id) => {
+            if (!window.confirm("Are you sure you want to Mark this Duty Completed?")) return;
+
     try {
       await axios.put(
         `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/update-mcctrain/${id}`,
@@ -118,7 +120,8 @@ const LiveTrain = () => {
                 <td className="border px-2 md:px-4 py-2 capitalize">{train.status}</td>
                 <td className="border px-2 md:px-4 py-2">{formatDateTime(train.createdAt)}</td>
                 <td className="border px-2 md:px-4 py-2">{train.workers?.length || 0}</td>
-                <td className="border px-2 md:px-4 py-2">{train.workers?.length - train.reqq || 0}</td>
+                <td className="border px-2 md:px-4 py-2">{Math.abs(Math.round(train.workers?.length - train.reqq)) || 0}
+</td>
                 <td className="border px-2 md:px-4 py-2">
                   {train.supervisor ? supervisorData?.name || "Unknown" : "Not Assigned"}
                 </td>

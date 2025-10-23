@@ -56,7 +56,6 @@ function App() {
           <Route path='admin' element={<AdminDashboard />} />
           <Route path='admin/Live-train/:id' element={<LiveTrain />} />
           <Route path='admin/addsupervisors' element={<Addsupervisor />} />
-
           <Route path='admin/addworkers' element={<Addworkers/>} />
 
 

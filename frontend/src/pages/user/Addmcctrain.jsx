@@ -35,7 +35,7 @@ const Addmcctrain = () => {
     suppliedBedsheet: "",
   });
 
-  const reqq = trainDetails.totalcoach ? trainDetails.totalcoach * 0.6 : 0;
+  const reqq = trainDetails.totalcoach ? Math.round(trainDetails.totalcoach * 0.6) : 0;
   const used = selectedWorkers.length;
 
   useEffect(() => {
@@ -101,6 +101,8 @@ const filteredWorkers = allWorkers.filter(
     }
 
     setLoading(true);
+if (!window.confirm("Are you sure you want to Create this Duty?")) return;
+
     try {
       const { data } = await axios.post(
         `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/create-mcctrain`,

@@ -97,6 +97,8 @@ const TrainDetails = () => {
   };
 
   const handleSaveClick = async (trainId) => {
+ if (!window.confirm("Are you sure you want to update this Duty?")) return;
+
     try {
       const updateData = { ...editableData };
       delete updateData.workerSearch;

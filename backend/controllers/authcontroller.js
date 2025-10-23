@@ -305,7 +305,7 @@ export const updatePassword = async (req, res) => {
     const { email } = req.body;
     
     // Check if the user exists
-    const user = await userModel.findOne({ email });
+    const user = await userModel.findOne( {email} );
     if (!user) {
       return res.status(400).send({ msg: "User not found " });
     }
@@ -318,7 +318,7 @@ export const updatePassword = async (req, res) => {
         address: process.env.EMAIL_USER,
       },
       to: email,
-      subject: 'Your OTP Code for CJ ATTIRE',
+      subject: 'Your OTP Code for Tharu & Sons',
       html: `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
           <div style="max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
@@ -350,6 +350,8 @@ export const updatePassword = async (req, res) => {
     }
   };
   
+  
+
 
 
 
