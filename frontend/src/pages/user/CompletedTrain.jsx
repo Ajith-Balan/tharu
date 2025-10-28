@@ -33,6 +33,8 @@ const CompletedTrain = () => {
       const completed =
         res.data?.filter(
           (train) => train.work?.toLowerCase() === selectedCategory.toLowerCase()
+        ).sort(
+          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
         ) || [];
       setCompletedDates(completed);
     } catch (err) {

@@ -5,7 +5,7 @@ import { useAuth } from "../../context/Auth";
 import AdminMenu from '../../components/layout/AdminMenu';
 import { Link } from "react-router-dom";
 import { FaEdit } from "react-icons/fa";
-
+import { toast } from "react-toastify";
 const Completedtrain = () => {
   const [auth] = useAuth();
   const [completedDates, setCompletedDates] = useState([]);
@@ -31,12 +31,27 @@ const Completedtrain = () => {
       const completed =
         res.data?.filter(
           (train) => train.work?.toLowerCase() === selected.toLowerCase()
+        ).sort(
+          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
         ) || [];
       setCompletedDates(completed);
     } catch (err) {
       console.error("Error fetching completed trains:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+   const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this work?")) return;
+    try {
+      await axios.delete(
+        `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/deletework/${id}`
+      );
+      toast.success("work Deleted Successfully");
+      fetchCompletedTrains();
+    } catch {
+      toast.error("Error deleting work");
     }
   };
 
@@ -119,7 +134,21 @@ const Completedtrain = () => {
                   </tr>
                 ) : completedDates.length > 0 ? (
                   completedDates.map((train) => {
-                    const manpowerDiff = (train.workers?.length || 0) - (train.reqq || 0);
+const manpowerDiff = (() => {
+  const workers = train.workers?.length || 0;
+  let multiplier =
+    selected === "bio"
+      ? 0.06
+      : selected === "acca"
+      ? 0.65
+      : selected === "mcc"
+      ? 0.6
+      : null;
+
+  if (multiplier === null) return 0; // ✅ return 0 if no tab match
+
+  return Math.abs(Math.round(workers - train.totalcoach * multiplier)) || 0;
+})();
                     const bedsheetDiff = (train.suppliedBedsheet || 0) - (train.returned || 0);
 
                     return (
@@ -131,7 +160,7 @@ const Completedtrain = () => {
 
                         {selected === "acca" ? (
                           <>
-                            <td className={`px-2 md:px-4 py-2 border ${manpowerDiff < 0 ? "bg-red-500 text-white" : manpowerDiff > 0 ? "bg-green-500 text-white" : ""}`}>
+                            <td className={`px-2 md:px-4 py-2 border ${manpowerDiff > 0 ? "bg-red-500 text-white" : manpowerDiff < 0 ? "bg-green-500 text-white" : ""}`}>
                               {Math.abs(Math.round(manpowerDiff)) || 0}
                             </td>
                             <td className={`px-2 md:px-4 py-2 border ${bedsheetDiff > 0 ? "bg-red-500 text-white" : bedsheetDiff < 0 ? "bg-green-500 text-white" : ""}`}>
@@ -139,7 +168,7 @@ const Completedtrain = () => {
                             </td>
                           </>
                         ) : (
-                          <td className={`px-2 md:px-4 py-2 border ${manpowerDiff < 0 ? "bg-red-500 text-white" : manpowerDiff > 0 ? "bg-green-500 text-white" : ""}`}>
+                          <td className={`px-2 md:px-4 py-2 border ${manpowerDiff > 0 ? "bg-red-500 text-white" : manpowerDiff < 0 ? "bg-green-500 text-white" : ""}`}>
                                {Math.abs(Math.round(manpowerDiff)) || 0}
                           </td>
                         )}
@@ -150,10 +179,13 @@ const Completedtrain = () => {
                             : "Not Assigned"}
                         </td>
 
-                        <td className="px-2 md:px-4 py-2 border">
+                        <td className="px-2 md:px-4 flex gap-5 py-2 border">
                           <Link to={`/dashboard/manager/traindetail/${train._id}`} className="flex items-center gap-1 text-blue-600 hover:underline">
                             Details <FaEdit />
                           </Link>
+                          <button onClick={()=> handleDelete(train._id)}>
+                            Delete
+                          </button>
                         </td>
                       </tr>
                     );

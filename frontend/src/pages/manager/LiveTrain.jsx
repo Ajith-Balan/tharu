@@ -120,8 +120,50 @@ const LiveTrain = () => {
                 <td className="border px-2 md:px-4 py-2 capitalize">{train.status}</td>
                 <td className="border px-2 md:px-4 py-2">{formatDateTime(train.createdAt)}</td>
                 <td className="border px-2 md:px-4 py-2">{train.workers?.length || 0}</td>
-                <td className="border px-2 md:px-4 py-2">{Math.abs(Math.round(train.workers?.length - train.reqq)) || 0}
+        <td
+  className={`border px-2 md:px-4 py-2 text-center ${
+    (() => {
+      let multiplier =
+        activeTab === "bio"
+          ? 0.06
+          : activeTab === "acca"
+          ? 0.65
+          : activeTab === "mcc"
+          ? 0.6
+          : null;
+
+      if (multiplier === null) return "bg-gray-100"; // no calculation
+
+      const diff = Math.round(
+        (train.workers?.length || 0) - train.totalcoach * multiplier
+      );
+
+      return diff < 0 ? "bg-red-500" : diff > 0 ? "bg-green-500" : "bg-yellow-100";
+    })()
+  }`}
+>
+  {(() => {
+    let multiplier =
+      activeTab === "bio"
+        ? 0.06
+        : activeTab === "acca"
+        ? 0.65
+        : activeTab === "mcc"
+        ? 0.6
+        : null;
+
+    if (multiplier === null) return 0;
+
+    const diff = Math.round(
+      (train.workers?.length || 0) - train.totalcoach * multiplier
+    );
+
+    return Math.abs(diff) || 0;
+  })()}
 </td>
+
+
+
                 <td className="border px-2 md:px-4 py-2">
                   {train.supervisor ? supervisorData?.name || "Unknown" : "Not Assigned"}
                 </td>
@@ -136,7 +178,7 @@ const LiveTrain = () => {
                       </button>
                     )}
                     <Link
-                      to={`/dashboard/user/traindetails/${train._id}`}
+                      to={`/dashboard/manager/traindetail/${train._id}`}
                       className="text-sm bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 flex items-center gap-1"
                     >
                       <FaEdit />

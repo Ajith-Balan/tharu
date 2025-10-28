@@ -12,7 +12,7 @@ const Addsupervisor = () => {
 
   const [formData, setFormData] = useState({
     work:'', email: '', name: '', phone: '', password: '', confirmPassword: '',
-    aadhar: '', empid: '', designation: 'Supervisor', wage: '', bank: '', branch: '', 
+    aadhar: '',  designation: 'Supervisor', wage: '', bank: '', branch: '', 
     ifsccode: '', acnumber: '', uanno: '', esino: '', status: '', role: 0
   });
 
@@ -43,8 +43,8 @@ const Addsupervisor = () => {
   };
 
   const validateForm = () => {
-    const { name, phone, empid, aadhar, password, confirmPassword } = formData;
-    if (!name || !aadhar || !phone || !empid || !password || !confirmPassword) {
+    const { name, phone,  aadhar, password, confirmPassword } = formData;
+    if (!name || !aadhar || !phone ||  !password || !confirmPassword) {
       toast.error('Please fill all fields');
       return false;
     }

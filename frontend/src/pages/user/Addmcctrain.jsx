@@ -35,7 +35,12 @@ const Addmcctrain = () => {
     suppliedBedsheet: "",
   });
 
-  const reqq = trainDetails.totalcoach ? Math.round(trainDetails.totalcoach * 0.6) : 0;
+const reqq = trainDetails.totalcoach 
+  ? Math.round(
+      trainDetails.totalcoach * 
+      (selectedCategory === "bio" ? 0.06 : 0.6)
+    )
+  : 0;
   const used = selectedWorkers.length;
 
   useEffect(() => {

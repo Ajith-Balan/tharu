@@ -130,7 +130,7 @@ export const loginController = async (req, res) => {
           phone: user.phone,
           designation:user.designation,
           role: user.role,
-         work: user.work,
+          work: user.work,
 
         },
         token,

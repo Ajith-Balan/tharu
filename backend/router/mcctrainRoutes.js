@@ -1,6 +1,6 @@
 import express from "express"
 import {  requireSignIn } from "../middlewares/authmiddleware.js"
-import { createcontractController, createtrainController, deletebill, getBills, getcompletedtraincontroller, getlivetraincontroller, getonebill, getonetrain, updatebill, updatetrain } from "../controllers/mcctrainController.js"
+import { createcontractController, createtrainController, deletebill, deletework, getBills, getcompletedtraincontroller, getlivetraincontroller, getonebill, getonetrain, updatebill, updatetrain } from "../controllers/mcctrainController.js"
 
 const router = express.Router()
 
@@ -16,6 +16,7 @@ router.get('/get-completedmcctrain', getcompletedtraincontroller)
 router.get('/getone-mcctrain/:id', getonetrain)
 
 router.put('/update-mcctrain/:id', updatetrain)
+router.delete('/deletework/:id', deletework)
 
 
 router.get('/getbills', getBills)

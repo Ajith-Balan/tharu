@@ -73,7 +73,7 @@ const Attendance = () => {
     if (isFutureDate) return "-";
 
     const trainCount = completedTrains.filter((train) => {
-      const trainDate = new Date(train.updatedAt);
+      const trainDate = new Date(train.createdAt);
       return (
         trainDate.getDate() === day &&
         trainDate.getMonth() === selectedMonth &&

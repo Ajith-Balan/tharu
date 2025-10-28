@@ -4,14 +4,13 @@ import axios from 'axios';
 import { useAuth } from '../../context/Auth';
 import { useParams } from 'react-router-dom';
 import { FaEdit, FaSave } from 'react-icons/fa';
-import AdminMenu from '../../components/layout/AdminMenu';
+import AdminMenu from '../../components/layout/AdminMenu'
 
-const TrainDetail = () => {
+const TrainDetails = () => {
   const [auth] = useAuth();
   const { id } = useParams();
   const [supervisors, setSupervisors] = useState([]);
   const [supervisorName, setSupervisorName] = useState("");
-
   const [liveTrains, setLiveTrains] = useState({});
   const [allWorkers, setAllWorkers] = useState([]);
   const [editRowId, setEditRowId] = useState(null);
@@ -30,31 +29,6 @@ const TrainDetail = () => {
     if (auth?.user) getLiveTrain();
   }, [auth?.user]);
 
-  // Fetch supervisors
-  const fetchSupervisors = async () => {
-    try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_APP_BACKEND}/api/v1/auth/getsupervisor`
-      );
-      setSupervisors(res.data.supervisor || []);
-    } catch (error) {
-      console.error("Error fetching supervisors:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchSupervisors();
-  }, []);
-
-  // Update supervisor name
-  useEffect(() => {
-    if (liveTrains?.supervisor && supervisors.length > 0) {
-      const sup = supervisors.find((s) => s._id === liveTrains.supervisor);
-      setSupervisorName(sup ? sup.name : "Not Assigned");
-    }
-  }, [liveTrains, supervisors]);
-
-  // Fetch all workers
   useEffect(() => {
     const fetchWorkers = async () => {
       try {
@@ -83,9 +57,29 @@ const TrainDetail = () => {
     }
   };
 
+  const fetchSupervisors = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_BACKEND}/api/v1/auth/getsupervisor`
+      );
+      setSupervisors(res.data.supervisor || []);
+    } catch (error) {
+      console.error("Error fetching supervisors:", error);
+    }
+  };
+
+  useEffect(() => { fetchSupervisors(); }, []);
+
+  useEffect(() => {
+    if (liveTrains?.supervisor && supervisors.length > 0) {
+      const sup = supervisors.find((s) => s._id === liveTrains.supervisor);
+      setSupervisorName(sup ? sup.name : "Not Assigned");
+    }
+  }, [liveTrains, supervisors]);
+
   const handleEditClick = (train) => {
-    const detailed = (train.workers || []).map((id) =>
-      allWorkers.find((w) => w._id === id)
+    const detailed = (train.workers || []).map((workerId) =>
+      allWorkers.find((w) => w._id === workerId)
     ).filter(Boolean);
 
     setEditRowId(train._id);
@@ -103,57 +97,46 @@ const TrainDetail = () => {
   };
 
   const handleSaveClick = async (trainId) => {
-    if (!editableData.trainno || !editableData.status || !editableData.totalcoach) {
-      alert("Please fill all required fields");
-      return;
-    }
-
-  if (!window.confirm("Are you sure you want to Update this Duty?")) return;
-
+ if (!window.confirm("Are you sure you want to update this Duty?")) return;
 
     try {
-      setLoading(true);
       const updateData = { ...editableData };
       delete updateData.workerSearch;
-      delete updateData.workersDetailed;
-
       await axios.put(
         `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/update-mcctrain/${trainId}`,
         updateData
       );
-
       setEditRowId(null);
       getLiveTrain();
-      alert("Train updated successfully");
     } catch (err) {
       console.error('Error saving train:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
     <Layout>
       <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
-        <AdminMenu />
-        <div className="flex-1 p-4 md:p-6 mx-auto">
-          <div className="bg-white rounded-lg shadow p-4 md:p-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-              <h1 className="text-2xl font-bold text-gray-800">Completed Work Details</h1>
+        {/* Sidebar */}
+        <div className="w-full md:w-64 bg-white shadow-md">
+          <AdminMenu />
+        </div>
+
+        {/* Main content */}
+        <div className="flex-1 p-4 md:p-6 mx-auto w-full">
+          <div className="bg-white p-4 md:p-6 rounded-lg shadow space-y-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <h1 className="text-2xl font-bold text-gray-800">Live Work Details</h1>
               {editRowId === liveTrains._id ? (
                 <button
                   onClick={() => handleSaveClick(liveTrains._id)}
-                  disabled={loading}
-                  className={`${
-                    loading ? 'opacity-50 cursor-not-allowed' : ''
-                  } bg-green-600 text-white px-4 py-2 rounded flex items-center gap-2`}
+                  className="bg-green-600 w-full md:w-auto text-white px-4 py-2 rounded flex items-center gap-2 justify-center"
                 >
-                  <FaSave /> {loading ? 'Saving...' : 'Save'}
+                  <FaSave /> Save
                 </button>
               ) : (
                 <button
                   onClick={() => handleEditClick(liveTrains)}
-                  className="bg-yellow-500 text-white px-4 py-2 rounded flex items-center gap-2"
+                  className="bg-yellow-500 w-full md:w-auto text-white px-4 py-2 rounded flex items-center gap-2 justify-center"
                 >
                   <FaEdit /> Edit
                 </button>
@@ -161,25 +144,35 @@ const TrainDetail = () => {
             </div>
 
             {loading ? (
-              <p>Loading...</p>
+              <p className="text-center text-gray-500">Loading...</p>
             ) : (
-              <div className="space-y-5">
-                {/* Metadata */}
+              <div className="space-y-4">
+                {/* Created & Updated */}
                 <div className="text-sm text-gray-600 space-y-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-gray-400">📅</span>
+                  <div className="flex items-center gap-2">
+                    <span>📅</span>
                     <span className="font-medium">Created:</span>
-                    <span>{new Date(liveTrains.createdAt).toLocaleString('en-GB')}</span>
+                    <span>
+                      {new Date(liveTrains.createdAt).toLocaleString('en-GB', {
+                        day: '2-digit', month: '2-digit', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit', hour12: true
+                      })}
+                    </span>
                   </div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-gray-400">🕒</span>
+                  <div className="flex items-center gap-2">
+                    <span>🕒</span>
                     <span className="font-medium">Updated:</span>
-                    <span>{new Date(liveTrains.updatedAt).toLocaleString('en-GB')}</span>
+                    <span>
+                      {new Date(liveTrains.updatedAt).toLocaleString('en-GB', {
+                        day: '2-digit', month: '2-digit', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit', hour12: true
+                      })}
+                    </span>
                   </div>
                 </div>
 
                 {/* Train No */}
-                <div className="flex flex-col">
+                <div>
                   <label className="block text-gray-700 font-medium mb-1">Train No</label>
                   {editRowId === liveTrains._id ? (
                     <input
@@ -195,7 +188,7 @@ const TrainDetail = () => {
                 </div>
 
                 {/* Status */}
-                <div className="flex flex-col">
+                <div>
                   <label className="block text-gray-700 font-medium mb-1">Status</label>
                   {editRowId === liveTrains._id ? (
                     <select
@@ -213,13 +206,13 @@ const TrainDetail = () => {
                 </div>
 
                 {/* Supervisor */}
-                <div className="flex flex-col">
+                <div>
                   <label className="block text-gray-700 font-medium mb-1">Supervisor</label>
                   <p className="capitalize text-gray-800">{supervisorName}</p>
                 </div>
 
                 {/* Total Coaches */}
-                <div className="flex flex-col">
+                <div>
                   <label className="block text-gray-700 font-medium mb-1">Total Coaches</label>
                   {editRowId === liveTrains._id ? (
                     <input
@@ -235,73 +228,56 @@ const TrainDetail = () => {
                 </div>
 
                 {/* Workers */}
-                <div className="flex flex-col">
+                <div>
                   <label className="block text-gray-700 font-medium mb-1">Assigned Workers</label>
                   {editRowId === liveTrains._id ? (
                     <div className="space-y-2">
                       <div className="flex flex-wrap gap-2">
-                        {(editableData.workersDetailed || []).map((worker) => (
+                        {(editableData.workersDetailed || []).map(worker => (
                           <span
                             key={worker._id}
-                            className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center gap-2"
+                            className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center gap-1"
                           >
                             {worker.name}
                             <button
                               onClick={() => {
-                                const updated = editableData.workersDetailed.filter(
-                                  (w) => w._id !== worker._id
-                                );
+                                const updated = editableData.workersDetailed.filter(w => w._id !== worker._id);
                                 setEditableData({
                                   ...editableData,
                                   workersDetailed: updated,
-                                  workers: updated.map((w) => w._id),
+                                  workers: updated.map(w => w._id),
                                 });
                               }}
-                              className="text-red-500"
-                            >
-                              &times;
-                            </button>
+                              className="text-red-500 font-bold"
+                            >&times;</button>
                           </span>
                         ))}
                       </div>
 
-                      {/* Worker Search */}
                       <input
                         type="text"
                         placeholder="Search workers"
                         value={editableData.workerSearch || ''}
-                        onChange={(e) =>
-                          setEditableData((prev) => ({
-                            ...prev,
-                            workerSearch: e.target.value,
-                          }))
-                        }
+                        onChange={(e) => setEditableData(prev => ({ ...prev, workerSearch: e.target.value }))}
                         className="border p-2 w-full rounded"
                       />
 
-                      {/* Suggestions */}
                       {editableData.workerSearch && (
                         <ul className="border rounded bg-white max-h-40 overflow-y-auto">
                           {allWorkers
                             .filter(
-                              (w) =>
-                                w.name
-                                  .toLowerCase()
-                                  .includes(editableData.workerSearch.toLowerCase()) &&
-                                !editableData.workersDetailed?.some((sel) => sel._id === w._id)
+                              w => w.name.toLowerCase().includes(editableData.workerSearch.toLowerCase()) &&
+                                !editableData.workersDetailed?.some(sel => sel._id === w._id)
                             )
-                            .map((worker) => (
+                            .map(worker => (
                               <li
                                 key={worker._id}
                                 onClick={() => {
-                                  const updated = [
-                                    ...(editableData.workersDetailed || []),
-                                    worker,
-                                  ];
+                                  const updated = [...(editableData.workersDetailed || []), worker];
                                   setEditableData({
                                     ...editableData,
                                     workersDetailed: updated,
-                                    workers: updated.map((w) => w._id),
+                                    workers: updated.map(w => w._id),
                                     workerSearch: '',
                                   });
                                 }}
@@ -310,21 +286,12 @@ const TrainDetail = () => {
                                 {worker.name}
                               </li>
                             ))}
-                          {allWorkers.filter(
-                            (w) =>
-                              w.name
-                                .toLowerCase()
-                                .includes(editableData.workerSearch.toLowerCase()) &&
-                              !editableData.workersDetailed?.some((sel) => sel._id === w._id)
-                          ).length === 0 && (
-                            <li className="px-2 py-1 text-gray-500">No workers found</li>
-                          )}
                         </ul>
                       )}
                     </div>
                   ) : (
                     <div className="flex flex-wrap gap-2">
-                      {(liveTrains.workers || []).map((workerId) => (
+                      {(liveTrains.workers || []).map(workerId => (
                         <span
                           key={workerId}
                           className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full"
@@ -335,6 +302,7 @@ const TrainDetail = () => {
                     </div>
                   )}
                 </div>
+
               </div>
             )}
           </div>
@@ -344,4 +312,4 @@ const TrainDetail = () => {
   );
 };
 
-export default TrainDetail;
+export default TrainDetails;

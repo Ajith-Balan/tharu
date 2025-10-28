@@ -88,6 +88,17 @@ export async function getonetrain(req,res) {
 
 
 
+export async function deletework(req,res){
+  try{
+      const {id}=req.params;
+      await mcctrainModel.deleteOne({_id:id});
+      res.status(200).send({msg:"sucessfully deleted"})
+  }catch (error){
+      console.error(error);
+      res.status(400).send({error})
+  }
+ }
+
 
 
 export async function updatetrain(req,res){
