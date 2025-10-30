@@ -32,7 +32,7 @@ const Completedtrain = () => {
         res.data?.filter(
           (train) => train.work?.toLowerCase() === selected.toLowerCase()
         ).sort(
-          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         ) || [];
       setCompletedDates(completed);
     } catch (err) {
@@ -147,7 +147,7 @@ const manpowerDiff = (() => {
 
   if (multiplier === null) return 0; // ✅ return 0 if no tab match
 
-  return Math.abs(Math.round(workers - train.totalcoach * multiplier)) || 0;
+  return Math.round(workers - train.totalcoach * multiplier) || 0;
 })();
                     const bedsheetDiff = (train.suppliedBedsheet || 0) - (train.returned || 0);
 
@@ -155,7 +155,7 @@ const manpowerDiff = (() => {
                       <tr key={train._id} className="hover:bg-gray-50 border border-gray-200">
                         <td className="px-2 md:px-4 py-2 border">{train.trainno}</td>
                         <td className="px-2 md:px-4 py-2 border capitalize">{train.status}</td>
-                        <td className="px-2 md:px-4 py-2 border">{new Date(train.updatedAt).toLocaleDateString("en-IN")}</td>
+                        <td className="px-2 md:px-4 py-2 border">{new Date(train.createdAt).toLocaleDateString("en-IN")}</td>
                         <td className="px-2 md:px-4 py-2 border">{train.workers?.length || 0}</td>
 
                         {selected === "acca" ? (
@@ -168,8 +168,8 @@ const manpowerDiff = (() => {
                             </td>
                           </>
                         ) : (
-                          <td className={`px-2 md:px-4 py-2 border ${manpowerDiff > 0 ? "bg-red-500 text-white" : manpowerDiff < 0 ? "bg-green-500 text-white" : ""}`}>
-                               {Math.abs(Math.round(manpowerDiff)) || 0}
+                          <td className={`px-2 md:px-4 py-2 border ${manpowerDiff < 0 ? "bg-red-500 text-white" : manpowerDiff > 0 ? "bg-green-500 text-white" : ""}`}>
+                               {(Math.round(manpowerDiff)) || 0}
                           </td>
                         )}
 

@@ -34,7 +34,7 @@ const CompletedTrain = () => {
         res.data?.filter(
           (train) => train.work?.toLowerCase() === selectedCategory.toLowerCase()
         ).sort(
-          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         ) || [];
       setCompletedDates(completed);
     } catch (err) {
@@ -104,7 +104,7 @@ const CompletedTrain = () => {
                       <td className="px-2 sm:px-4 py-2">{train.trainno}</td>
                       <td className="px-2 sm:px-4 py-2 capitalize">{train.status}</td>
                       <td className="px-2 sm:px-4 py-2">
-                        {new Date(train.updatedAt).toLocaleDateString("en-IN")}
+                        {new Date(train.createdAt).toLocaleDateString("en-IN")}
                       </td>
                       <td className="px-2 sm:px-4 py-2">{train.workers?.length || 0}</td>
                     </tr>

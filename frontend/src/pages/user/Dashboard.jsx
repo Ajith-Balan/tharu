@@ -43,7 +43,7 @@ const Dashboard = () => {
     } else if (!userWork && TABS.length > 0) {
       setActiveTab(TABS[0].id);
     }
-  }, [userWork]);
+  }, [userWork, filteredTabs, TABS]);
 
   // Fetch live trains
   const fetchLiveTrains = async () => {
@@ -80,8 +80,6 @@ const Dashboard = () => {
 
   // Update train status
   const updateTrain = async (id, data) => {
-            if (!window.confirm("Are you sure you want to Mark this Duty Completed?")) return;
-
     try {
       await axios.put(
         `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/update-mcctrain/${id}`,
@@ -95,23 +93,33 @@ const Dashboard = () => {
 
   // Mark as completed handler
   const handleMarkCompleted = (train) => {
-    if (activeTab === "acca") {
- if (!window.confirm("Are you sure you want to Mark this Duty Completed?")) return;
+    if (!window.confirm("Are you sure you want to mark this duty completed?")) return;
 
+    if (activeTab === "acca") {
       setSelectedTrain(train);
       setShowPopup(true);
     } else {
-      updateTrain(train._id, { status: "completed" ,reqq:train.workers?.length});
+      updateTrain(train._id, {
+        status: "completed",
+        reqq: train.workers?.length,
+      });
     }
   };
 
   // Handle popup submit (for ACCA)
   const handlePopupSubmit = async () => {
     if (!selectedTrain) return;
+
+    if (returned === "" || Number(returned) < 0) {
+      alert("Please enter a valid bedsheet count.");
+      return;
+    }
+
     await updateTrain(selectedTrain._id, {
       status: "completed",
       returned: Number(returned) || 0,
     });
+
     setShowPopup(false);
     setSelectedTrain(null);
     setReturned("");
@@ -136,6 +144,16 @@ const Dashboard = () => {
       (train) => train.work?.toLowerCase() === activeTab
     );
 
+    if (loading) {
+      return (
+        <tr>
+          <td colSpan="6" className="text-center py-4 text-gray-500">
+            Loading...
+          </td>
+        </tr>
+      );
+    }
+
     if (filteredTrains.length === 0) {
       return (
         <tr>
@@ -151,6 +169,8 @@ const Dashboard = () => {
         (sup) => sup._id === train.supervisor
       );
 
+      const isSupervisor = auth.user?.name === supervisorData?.name;
+
       return (
         <tr
           key={train._id}
@@ -159,7 +179,13 @@ const Dashboard = () => {
           <td className="border border-gray-300 px-2 sm:px-4 py-2 text-gray-700 text-sm sm:text-base">
             {train.trainno}
           </td>
-          <td className="border border-gray-300 px-2 sm:px-4 py-2 text-gray-700 capitalize text-sm sm:text-base">
+          <td
+            className={`border border-gray-300 px-2 sm:px-4 py-2 text-sm sm:text-base font-medium ${
+              train.status === "completed"
+                ? "text-green-600"
+                : "text-yellow-600"
+            }`}
+          >
             {train.status}
           </td>
           <td className="border border-gray-300 px-2 sm:px-4 py-2 text-gray-700 text-sm sm:text-base">
@@ -176,14 +202,41 @@ const Dashboard = () => {
               {train.status !== "completed" && (
                 <button
                   onClick={() => handleMarkCompleted(train)}
-                  className="text-xs sm:text-sm bg-green-500 text-white px-2 sm:px-3 py-1 rounded hover:bg-green-600"
+                  disabled={!isSupervisor}
+                  title={
+                    !isSupervisor
+                      ? "Only assigned supervisor can complete this train"
+                      : ""
+                  }
+                  className={`text-xs sm:text-sm px-2 sm:px-3 py-1 rounded 
+                    ${
+                      !isSupervisor
+                        ? "bg-gray-400 cursor-not-allowed text-white"
+                        : "bg-green-500 hover:bg-green-600 text-white"
+                    }`}
                 >
                   Mark as Completed
                 </button>
               )}
+
               <Link
-                to={`/dashboard/user/traindetails/${train._id}`}
-                className="text-xs sm:text-sm bg-yellow-500 text-white px-2 sm:px-3 py-1 rounded hover:bg-yellow-600 flex items-center gap-1"
+                to={
+                  isSupervisor
+                    ? `/dashboard/user/traindetails/${train._id}`
+                    : "#"
+                }
+                onClick={(e) => {
+                  if (!isSupervisor) {
+                    e.preventDefault();
+                    alert("Only supervisor can edit this train.");
+                  }
+                }}
+                className={`text-xs sm:text-sm px-2 sm:px-3 py-1 rounded flex items-center gap-1
+                  ${
+                    !isSupervisor
+                      ? "bg-gray-400 cursor-not-allowed text-white"
+                      : "bg-yellow-500 hover:bg-yellow-600 text-white"
+                  }`}
               >
                 <FaEdit />
               </Link>
@@ -199,7 +252,9 @@ const Dashboard = () => {
       <div className="flex flex-col md:flex-row bg-gray-100 min-h-screen">
         <UserMenu />
         <div className="p-4 md:p-6 flex-1 w-full">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-4">Live Work Details</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-4">
+            Live Work Details
+          </h1>
 
           {/* Tabs */}
           <ul className="flex flex-wrap border-b mb-4">
@@ -218,10 +273,20 @@ const Dashboard = () => {
             ))}
           </ul>
 
+          {/* Count */}
+          <p className="mb-3 text-gray-600 text-sm">
+            Total Live Trains:{" "}
+            {
+              liveTrains.filter(
+                (t) => t.work?.toLowerCase() === activeTab
+              ).length
+            }
+          </p>
+
           {/* Table */}
           <div className="overflow-x-auto w-full">
             <table className="min-w-full border border-gray-300 table-auto text-sm sm:text-base">
-              <thead className="bg-gray-100 text-gray-700 uppercase text-xs sm:text-sm tracking-wider sticky top-0 z-10">
+              <thead className="bg-gray-100 text-gray-700 uppercase text-xs sm:text-sm tracking-wider sticky top-0 z-10 shadow-sm">
                 <tr>
                   <th className="border border-gray-300 px-2 sm:px-4 py-2 text-left">
                     Train No
@@ -244,15 +309,7 @@ const Dashboard = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {loading ? (
-                  <tr>
-                    <td colSpan="6" className="text-center py-4 text-gray-500">
-                      Loading...
-                    </td>
-                  </tr>
-                ) : (
-                  renderLiveTrainTable()
-                )}
+                {renderLiveTrainTable()}
               </tbody>
             </table>
           </div>
