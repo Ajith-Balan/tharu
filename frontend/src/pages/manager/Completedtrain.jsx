@@ -160,7 +160,7 @@ const manpowerDiff = (() => {
 
                         {selected === "acca" ? (
                           <>
-                            <td className={`px-2 md:px-4 py-2 border ${manpowerDiff > 0 ? "bg-red-500 text-white" : manpowerDiff < 0 ? "bg-green-500 text-white" : ""}`}>
+                            <td className={`px-2 md:px-4 py-2 border ${manpowerDiff < 0 ? "bg-red-500 text-white" : manpowerDiff > 0 ? "bg-green-500 text-white" : ""}`}>
                               {Math.abs(Math.round(manpowerDiff)) || 0}
                             </td>
                             <td className={`px-2 md:px-4 py-2 border ${bedsheetDiff > 0 ? "bg-red-500 text-white" : bedsheetDiff < 0 ? "bg-green-500 text-white" : ""}`}>
