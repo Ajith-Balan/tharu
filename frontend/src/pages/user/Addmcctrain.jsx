@@ -105,10 +105,13 @@ const filteredWorkers = allWorkers.filter(
       }
     }
 
-    setLoading(true);
-if (!window.confirm("Are you sure you want to Create this Duty?")) return;
+    
+if (!window.confirm("Are you sure you want to Create this Duty?"))
+    
+  return;
 
     try {
+      setLoading(true);
       const { data } = await axios.post(
         `${import.meta.env.VITE_APP_BACKEND}/api/v1/mcctrain/create-mcctrain`,
         { ...trainDetails, reqq, used, work: selectedCategory }

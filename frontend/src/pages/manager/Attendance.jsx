@@ -186,64 +186,108 @@ const Attendance = () => {
         ) : filteredWorkers.length === 0 ? (
           <p>No workers in this category.</p>
         ) : (
-          <div className="overflow-auto max-h-[70vh] border rounded-lg">
-            <table className="min-w-full table-auto border border-gray-300">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border p-2 sticky left-0 top-0 bg-gray-100 z-10">
-                    Name
-                  </th>
-                  {daysArray.map((day) => (
-                    <th
-                      key={day}
-                      className="border p-2 text-sm sticky top-0 bg-gray-100 z-10"
-                    >
-                      {day}
-                    </th>
-                  ))}
-                  <th className="border p-2 text-sm sticky top-0 bg-gray-100 z-10">
-                    Total
-                  </th>
-                </tr>
-              </thead>
+         <div className="overflow-auto max-h-[70vh] border rounded-lg">
+  <table className="min-w-full table-auto border border-gray-300">
+    <thead>
+      <tr className="bg-gray-100">
+        <th className="border p-2 sticky left-0 top-0 bg-gray-100 z-10">
+          Name
+        </th>
+        {daysArray.map((day) => (
+          <th
+            key={day}
+            className="border p-2 text-sm sticky top-0 bg-gray-100 z-10"
+          >
+            {day}
+          </th>
+        ))}
+        <th className="border p-2 text-sm sticky top-0 bg-gray-100 z-10">
+          Total
+        </th>
+      </tr>
+    </thead>
 
-              <tbody>
-                {filteredWorkers.map((worker) => {
-                  let total = 0;
-                  const dayStatus = daysArray.map((day) => {
-                    const status = getAttendanceStatus(worker._id, day);
-                    if (status === "P") total += 1;
-                    else if (status === "P2") total += 2;
-                    else if (status === "P3") total += 3;
-                    return status;
-                  });
+    <tbody>
+      {filteredWorkers.map((worker) => {
+        let total = 0;
+        const dayStatus = daysArray.map((day) => {
+          const status = getAttendanceStatus(worker._id, day);
+          if (status === "P") total += 1;
+          else if (status === "P2") total += 2;
+          else if (status === "P3") total += 3;
+          else if (status === "P4") total += 4;
+          return status;
+        });
 
-                  return (
-                    <tr key={worker._id}>
-                      <td className="border p-2 sticky left-0 bg-white font-medium z-10">
-                        {worker.name}
-                      </td>
-                      {dayStatus.map((status, index) => (
-                        <td
-                          key={index}
-                          className={`border p-1 text-center text-sm ${
-                            status === "A"
-                              ? "bg-red-100 text-red-600"
-                              : status.startsWith("P")
-                              ? "bg-green-100 text-green-700"
-                              : "text-gray-400"
-                          }`}
-                        >
-                          {status}
-                        </td>
-                      ))}
-                      <td className="border p-1 text-center font-semibold">{total}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+        return (
+          <tr key={worker._id}>
+            <td className="border p-2 sticky left-0 bg-white font-medium z-10">
+              {worker.name}
+            </td>
+            {dayStatus.map((status, index) => (
+              <td
+                key={index}
+                className={`border p-1 text-center text-sm ${
+                  status === "A"
+                    ? "bg-red-100 text-red-600"
+                    : status.startsWith("P")
+                    ? "bg-green-100 text-green-700"
+                    : "text-gray-400"
+                }`}
+              >
+                {status}
+              </td>
+            ))}
+            <td className="border p-1 text-center font-semibold">{total}</td>
+          </tr>
+        );
+      })}
+    </tbody>
+
+    {/* ✅ Total Row */}
+    <tfoot>
+      <tr className="bg-gray-50 font-semibold">
+        <td className="border p-2 sticky left-0 bg-gray-50 z-10">Total</td>
+        {daysArray.map((day, index) => {
+          let totalPresent = 0;
+          filteredWorkers.forEach((worker) => {
+            const status = getAttendanceStatus(worker._id, day);
+            if (status === "P") totalPresent += 1;
+            else if (status === "P2") totalPresent += 1;
+            else if (status === "P3") totalPresent += 1;
+            else if (status === "P4") totalPresent += 1;
+          });
+          return (
+            <td
+              key={index}
+              className="border p-1 text-center text-sm text-blue-700"
+            >
+              {totalPresent}
+            </td>
+          );
+        })}
+
+        {/* ✅ Grand Total */}
+        <td className="border p-1 text-center text-blue-800 font-bold">
+          {filteredWorkers.reduce((sum, worker) => {
+            return (
+              sum +
+              daysArray.reduce((count, day) => {
+                const status = getAttendanceStatus(worker._id, day);
+                if (status === "P") return count + 1;
+                if (status === "P2") return count + 2;
+                if (status === "P3") return count + 3;
+                if (status === "P4") return count + 4;
+                return count;
+              }, 0)
+            );
+          }, 0)}
+        </td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
         )}
       </div>
     </Layout>

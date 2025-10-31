@@ -32,7 +32,7 @@ const Dashboard = () => {
 
   // If user has specific work assigned, show only that tab
   const filteredTabs =
-    userWork && TABS.some((tab) => tab.id === userWork)
+    userWork && TABS.filter((tab) => tab.id === userWork)
       ? TABS.filter((tab) => tab.id === userWork)
       : TABS;
 
@@ -40,7 +40,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (userWork && filteredTabs.length > 0) {
       setActiveTab(userWork);
-    } else if (!userWork && TABS.length > 0) {
+    } else if (!userWork && TABS.length < 0) {
       setActiveTab(TABS[0].id);
     }
   }, [userWork, filteredTabs, TABS]);
@@ -158,7 +158,7 @@ const Dashboard = () => {
       return (
         <tr>
           <td colSpan="6" className="text-center py-4 text-gray-500">
-            No live trains available for {activeTab.toUpperCase()}.
+            No live trains available 
           </td>
         </tr>
       );

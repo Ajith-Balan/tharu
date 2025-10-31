@@ -56,16 +56,16 @@ const StaffDetails = () => {
 
   return (
     <Layout title="Staff Details - Manager">
-      {/* ✅ Flex Row Layout */}
-      <div className="flex min-h-screen bg-gray-100">
-        {/* Sidebar */}
-        <div className="w-64 bg-white shadow-md border-r">
+      {/* ✅ Responsive Flex Layout */}
+      <div className="flex flex-col md:flex-row bg-gray-100 min-h-screen">
+        {/* Left Sidebar - Admin Menu */}
+        <aside className="w-full md:w-64 bg-white shadow-md mb-4 md:mb-0">
           <AdminMenu />
-        </div>
+        </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6 overflow-x-auto">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">
+        <main className="flex-1 p-4 md:p-6 overflow-x-auto">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-4">
             All Staff Members
           </h1>
 
@@ -75,7 +75,7 @@ const StaffDetails = () => {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 rounded-full font-medium ${
+                className={`px-3 py-1.5 md:px-4 md:py-2 rounded-full text-sm md:text-base font-medium ${
                   activeTab === tab
                     ? "bg-blue-600 text-white"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -88,28 +88,28 @@ const StaffDetails = () => {
 
           {/* Table */}
           <div className="overflow-x-auto bg-white shadow-md rounded-lg border border-gray-200">
-            <table className="min-w-full border-collapse">
+            <table className="min-w-full text-sm md:text-base border-collapse">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="px-4 py-2 text-left border-b">Name</th>
-                  <th className="px-4 py-2 text-left border-b">Phone</th>
-                  <th className="px-4 py-2 text-left border-b">Emp ID</th>
-                  <th className="px-4 py-2 text-left border-b">Aadhar</th>
-                  <th className="px-4 py-2 text-left border-b">Status</th>
-                  <th className="px-4 py-2 text-left border-b">Action</th>
+                  <th className="px-2 md:px-4 py-2 text-left border-b">Name</th>
+                  <th className="px-2 md:px-4 py-2 text-left border-b">Phone</th>
+                  <th className="px-2 md:px-4 py-2 text-left border-b">Emp ID</th>
+                  <th className="px-2 md:px-4 py-2 text-left border-b">Aadhar</th>
+                  <th className="px-2 md:px-4 py-2 text-left border-b">Status</th>
+                  <th className="px-2 md:px-4 py-2 text-left border-b">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {currentWorkers.length > 0 ? (
                   currentWorkers.map((s) => (
                     <tr key={s._id} className="hover:bg-gray-50">
-                      <td className="px-4 py-2 border-b">{s.name}</td>
-                      <td className="px-4 py-2 border-b">{s.phone}</td>
-                      <td className="px-4 py-2 border-b">{s.empid}</td>
-                      <td className="px-4 py-2 border-b">{s.aadhar}</td>
-                      <td className="px-4 py-2 border-b">
+                      <td className="px-2 md:px-4 py-2 border-b">{s.name}</td>
+                      <td className="px-2 md:px-4 py-2 border-b">{s.phone}</td>
+                      <td className="px-2 md:px-4 py-2 border-b">{s.empid}</td>
+                      <td className="px-2 md:px-4 py-2 border-b">{s.aadhar}</td>
+                      <td className="px-2 md:px-4 py-2 border-b">
                         <span
-                          className={`px-2 py-1 rounded text-sm ${
+                          className={`px-2 py-1 rounded text-xs md:text-sm ${
                             s.status === "Active"
                               ? "bg-green-100 text-green-800"
                               : "bg-red-100 text-red-800"
@@ -118,10 +118,10 @@ const StaffDetails = () => {
                           {s.status}
                         </span>
                       </td>
-                      <td className="px-4 py-2 border-b">
+                      <td className="px-2 md:px-4 py-2 border-b">
                         <Link
                           to={`/dashboard/manager/editstaff/${s._id}`}
-                          className="text-blue-600 hover:text-blue-800"
+                          className="text-blue-600 hover:text-blue-800 text-lg"
                         >
                           <FaEdit />
                         </Link>
@@ -132,7 +132,7 @@ const StaffDetails = () => {
                   <tr>
                     <td
                       colSpan={6}
-                      className="px-4 py-2 text-center text-gray-600"
+                      className="px-4 py-3 text-center text-gray-600"
                     >
                       No staff found in this category.
                     </td>
@@ -143,9 +143,9 @@ const StaffDetails = () => {
           </div>
 
           {/* Pagination */}
-          <div className="flex justify-center items-center gap-3 mt-4">
+          <div className="flex justify-center items-center gap-2 md:gap-3 mt-5 flex-wrap">
             <button
-              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50 text-sm md:text-base"
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((p) => p - 1)}
             >
@@ -156,10 +156,10 @@ const StaffDetails = () => {
               <button
                 key={i}
                 onClick={() => setCurrentPage(i + 1)}
-                className={`px-3 py-1 rounded ${
+                className={`px-3 py-1 rounded text-sm md:text-base ${
                   currentPage === i + 1
                     ? "bg-blue-600 text-white"
-                    : "bg-gray-200"
+                    : "bg-gray-200 text-gray-800"
                 }`}
               >
                 {i + 1}
@@ -167,7 +167,7 @@ const StaffDetails = () => {
             ))}
 
             <button
-              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50 text-sm md:text-base"
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage((p) => p + 1)}
             >
